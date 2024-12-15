@@ -93,7 +93,13 @@ The Golibaba is a modular and scalable application inspired by travel platforms 
 │    │    ├─── identifiers.go
 │    │    ├─── mappers.go
 │    │    └─── interfaces.go
-│    └─── logics...
+│    └─── sample_logic
+│    │    ├─── port
+│    │    │    ├─── sample_logic.go
+│    │    │    └─── service.go
+│    │    ├─── domain
+│    │    │    └─── sample_logic.go
+│    │    └─── service.go
 │─── pkg
 │    ├─── adapters
 │    │    ├─── cache
