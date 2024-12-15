@@ -1,10 +1,13 @@
 <h1>Golibaba Backend Microservice</h1>
+The Golibaba is a modular and scalable application inspired by travel platforms like Alibaba. It provides a comprehensive system for managing travel plans, bookings, and payments for different modes of transportation (e.g., buses, trains, planes, ships) and accommodations (e.g., hotels). The project aims to:
 
+- Simplify travel planning and booking.
+- Offer dynamic pricing and operator management.
+- Ensure secure and efficient handling of user data and payments.
 
 ## Menu
 <!-- TOC -->
   * [Menu](#menu)
-  * [Project Overview](#project-overview)
   * [Microservice Structure](#microservice-structure)
   * [Service Structure Sample](#service-structure-sample)
   * [Features](#features)
@@ -33,13 +36,6 @@
   * [Future Enhancements](#future-enhancements)
   * [Contribution](#contribution)
 <!-- TOC -->
-
-## Project Overview
-The Golibaba is a modular and scalable application inspired by travel platforms like Alibaba. It provides a comprehensive system for managing travel plans, bookings, and payments for different modes of transportation (e.g., buses, trains, planes, ships) and accommodations (e.g., hotels). The project aims to:
-
-- Simplify travel planning and booking.
-- Offer dynamic pricing and operator management.
-- Ensure secure and efficient handling of user data and payments.
 
 ## Microservice Structure
 ```bash
