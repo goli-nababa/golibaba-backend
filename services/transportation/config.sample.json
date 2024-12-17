@@ -1,0 +1,23 @@
+{
+  "db": {
+    "host": "goli_transportation_postgres",
+    "port": 5432,
+    "user": "porestgres",
+    "pass": "postgres",
+    "name": "goli_transportation",
+    "schema": "public"
+  },
+  "server": {
+    "port": 8080
+  },
+  "redis": {
+    "host": "golibaba-redis",
+    "port": 6379
+  },
+  "logging": {
+    "filePath": "/app/logs",
+    "encoding": "json",
+    "level": "debug",
+    "logger": "zap"
+  }
+}
