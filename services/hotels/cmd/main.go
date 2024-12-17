@@ -11,6 +11,7 @@ var cnfgPath = flag.String("c", "config.json", "to set config")
 
 func main() {
 	config := readConfig()
+	// TODO: REMOVE THIS LINE
 	fmt.Print(config)
 }
 
