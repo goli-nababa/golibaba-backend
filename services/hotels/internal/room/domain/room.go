@@ -9,7 +9,7 @@ import (
 type RoomID string
 type Room struct {
 	ID         RoomID
-	HotelID    hotelDomain.HotelId
+	HotelID    hotelDomain.HotelID
 	RateID     RateDomain.RateID
 	RoomNumber string
 	Capacity   uint
@@ -19,6 +19,8 @@ type Room struct {
 	EditedAt   time.Time
 	DeletedAt  time.Time
 }
+
+type RoomFilterItem struct{}
 
 func (r *Room) Validation() {
 	//TODO

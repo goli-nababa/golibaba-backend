@@ -2,9 +2,9 @@ package domain
 
 import "time"
 
-type HotelId string
+type HotelID string
 type Hotel struct {
-	ID         HotelId
+	ID         HotelID
 	Name       string
 	Address    string
 	Rating     string

@@ -25,6 +25,8 @@ type Rate struct {
 	DeletedAt time.Time
 }
 
+type RateFilterItem struct{}
+
 func (r *Rate) Validation() {
 	//TODO
 }
