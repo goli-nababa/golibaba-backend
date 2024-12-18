@@ -1,6 +1,9 @@
 package port
 
-import "context"
+import (
+	"context"
+	"hotels-service/internal/room/domain"
+)
 
 type service interface {
 	reate(ctx context.Context, hotel domain.Room) (domain.RoomID, error)

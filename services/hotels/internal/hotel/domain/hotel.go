@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	UserDomain "hotels-service/internal/user/domain"
+	"time"
+)
 
 type HotelID string
 type Hotel struct {
@@ -9,7 +12,7 @@ type Hotel struct {
 	Address    string
 	Rating     string
 	Amentities []string
-	OwnerID    uint
+	OwnerID    UserDomain.UserID
 	CreatedAt  time.Time
 	EditedAt   time.Time
 	DeletedAt  time.Time
