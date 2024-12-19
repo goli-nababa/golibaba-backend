@@ -3,7 +3,7 @@ package booking
 import (
 	"context"
 	"hotels-service/internal/booking/domain"
-	"hotels-service/internal/booking/port"
+	BookingPort "hotels-service/internal/booking/port"
 	RoomPort "hotels-service/internal/room/port"
 	UserPort "hotels-service/internal/user/port"
 
@@ -15,7 +15,7 @@ type service struct {
 	roomService RoomPort.Service
 }
 
-func NewService(userService UserPort.Service, roomService RoomPort.Service) port.Service {
+func NewService(userService UserPort.Service, roomService RoomPort.Service) BookingPort.Service {
 	return &service{
 		userService: userService,
 		roomService: roomService,

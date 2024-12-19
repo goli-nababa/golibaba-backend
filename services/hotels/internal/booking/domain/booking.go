@@ -38,6 +38,9 @@ type Booking struct {
 	CheckOutDate time.Time
 	TotalPrice   float64
 	Status       StatusType
+	CreateAt     time.Time
+	EditedAt     time.Time
+	DeletedAt    time.Time
 }
 
 type BookingFilterItem struct {
