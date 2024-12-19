@@ -4,9 +4,11 @@ import (
 	hotelDomain "hotels-service/internal/hotel/domain"
 	RateDomain "hotels-service/internal/rate/domain"
 	"time"
+
+	"github.com/google/uuid"
 )
 
-type RoomID string
+type RoomID = uuid.UUID
 type Room struct {
 	ID         RoomID
 	HotelID    hotelDomain.HotelID

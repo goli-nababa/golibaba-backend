@@ -2,6 +2,8 @@ package domain
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type CurrencyType uint8
@@ -12,7 +14,7 @@ const (
 	CurrencyTypeUSD
 )
 
-type RateID string
+type RateID = uuid.UUID
 type Rate struct {
 	ID        RateID
 	Name      string
@@ -26,7 +28,3 @@ type Rate struct {
 }
 
 type RateFilterItem struct{}
-
-func (r *Rate) Validation() {
-	//TODO
-}

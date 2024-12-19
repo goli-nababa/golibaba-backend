@@ -3,6 +3,8 @@ package domain
 import (
 	BookingDomain "hotels-service/internal/booking/domain"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type PaymentMetodType uint8
@@ -21,7 +23,7 @@ const (
 	StatusTypeUnsuccessfully
 )
 
-type PaymentID string
+type PaymentID = uuid.UUID
 type Payment struct {
 	ID             PaymentID
 	BookingID      BookingDomain.BookingID
