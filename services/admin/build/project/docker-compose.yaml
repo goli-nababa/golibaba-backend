@@ -1,0 +1,14 @@
+services:
+  golibaba-admin-service-app:
+    container_name: golibaba-admin-service-app
+    networks:
+      - golibaba-network
+    build:
+      context: ../
+      dockerfile: build/project/Dockerfile
+    volumes:
+      - "../config.json:/usr/local/bin/config.json"
+
+networks:
+  golibaba-network:
+    driver: bridge
