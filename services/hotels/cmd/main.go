@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"hotels-service/config"
 	"os"
 )
@@ -10,9 +9,7 @@ import (
 var cnfgPath = flag.String("c", "config.json", "to set config")
 
 func main() {
-	config := readConfig()
-	// TODO: REMOVE THIS LINE
-	fmt.Print(config)
+	// config := readConfig()
 }
 
 func readConfig() config.Config {
