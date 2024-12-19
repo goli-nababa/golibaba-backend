@@ -2,7 +2,7 @@ ROOT_DIR := ./
 
 # Compose files relative to the root directory
 COMPOSE_FILES := \
-	-f $(ROOT_DIR)/rabbitmq/docker-compose.yaml
+	-f $(ROOT_DIR)/compose/rabbitmq/docker-compose.yaml
 
 NETWORK_NAME=golibaba-network
 
