@@ -1,0 +1,29 @@
+{
+    "db": {
+        "host": "postgres_location_postgres",
+        "port": 5432,
+        "database": "locationdb",
+        "schema": "public",
+        "user": "locationuser",
+        "password": "locationpass"
+    },
+    "server": {
+        "port": 8082,
+        "secret": "your-secret-key",
+        "password_secret": "your-password-secret",
+        "otp_ttl_minutes": 5,
+        "maxRequestsPerSecond": 100,
+        "auth_expiration_minutes": 60,
+        "auth_refresh_minutes": 1440
+    },
+    "redis": {
+        "host": "location-redis",
+        "port": 6379
+    },
+    "logger": {
+        "file_path": "./logs/",
+        "encoding": "json",
+        "level": "debug",
+        "logger": "zap"
+    }
+}
