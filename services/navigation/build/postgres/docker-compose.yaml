@@ -1,0 +1,30 @@
+services:
+  location-postgres:
+    image: postgres:15-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-golibaba}_location_postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${DB_USER:-locationuser}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-locationpass}
+      - POSTGRES_DB=${DB_NAME:-locationdb}
+      - TZ=Asia/Tehran
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - location_postgres_data:/var/lib/postgresql/data
+    networks:
+      - golibaba-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-locationuser} -d ${DB_NAME:-locationdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  location_postgres_data:
+    name: ${COMPOSE_PROJECT_NAME:-golibaba}_location_postgres_data
+
+networks:
+  golibaba-network:
+    external: true
