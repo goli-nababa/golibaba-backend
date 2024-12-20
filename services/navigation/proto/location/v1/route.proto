@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package location.v1;
+
+option go_package = "navigation_service/gen/go/location/v1;locationv1";
+
+service RouteService {
+  rpc CreateRoute(CreateRouteRequest) returns (CreateRouteResponse);
+  rpc GetRoute(GetRouteRequest) returns (GetRouteResponse);
+  rpc UpdateRoute(UpdateRouteRequest) returns (UpdateRouteResponse);
+  rpc DeleteRoute(DeleteRouteRequest) returns (DeleteRouteResponse);
+  rpc SearchRoutes(SearchRoutesRequest) returns (SearchRoutesResponse);
+}
+
+enum VehicleType {
+  VEHICLE_TYPE_UNSPECIFIED = 0;
+  VEHICLE_TYPE_AIRPLANE = 1;
+  VEHICLE_TYPE_BUS = 2;
+  VEHICLE_TYPE_TRAIN = 3;
+  VEHICLE_TYPE_SHIP = 4;
+}
+
+message Route {
+  uint64 id = 1;
+  string uuid = 2;
+  string code = 3;
+  uint64 from_id = 4;
+  uint64 to_id = 5;
+  double distance = 6;
+  repeated VehicleType vehicle_types = 7;
+  bool active = 8;
+  int64 created_at = 9;
+  int64 updated_at = 10;
+}
+
+message CreateRouteRequest {
+  string code = 1;
+  uint64 from_id = 2;
+  uint64 to_id = 3;
+  repeated VehicleType vehicle_types = 4;
+}
+
+message CreateRouteResponse {
+  Route route = 1;
+}
+
+message GetRouteRequest {
+  uint64 id = 1;
+}
+
+message GetRouteResponse {
+  Route route = 1;
+}
+
+message UpdateRouteRequest {
+  uint64 id = 1;
+  string code = 2;
+  uint64 from_id = 3;
+  uint64 to_id = 4;
+  repeated VehicleType vehicle_types = 5;
+  bool active = 6;
+}
+
+message UpdateRouteResponse {
+  Route route = 1;
+}
+
+message DeleteRouteRequest {
+  uint64 id = 1;
+}
+
+message DeleteRouteResponse {}
+
+message SearchRoutesRequest {
+  uint64 from_id = 1;
+  uint64 to_id = 2;
+  VehicleType vehicle_type = 3;
+  bool active_only = 4;
+  int32 page_size = 5;
+  int32 page_number = 6;
+}
+
+message SearchRoutesResponse {
+  repeated Route routes = 1;
+  int32 total_count = 2;
+}
