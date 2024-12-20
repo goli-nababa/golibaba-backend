@@ -1,0 +1,22 @@
+services:
+  location-app:
+    build:
+      context: ../..
+      dockerfile: build/project/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-golibaba}_location_service
+    restart: on-failure
+    environment:
+      - TZ=Asia/Tehran
+    volumes:
+      - location_logs:/app/logs
+    ports:
+      - "${APP_PORT:-8081}:8081"
+    networks:
+      - golibaba-network
+
+volumes:
+  location_logs:
+    name: ${COMPOSE_PROJECT_NAME:-golibaba}_location_logs
+networks:
+  golibaba-network:
+    external: true
