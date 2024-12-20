@@ -2,7 +2,7 @@ package domain
 
 import (
 	"errors"
-	UserDomain "hotels-service/internal/user/domain"
+	userDomain "hotels-service/internal/user/domain"
 	"time"
 
 	"github.com/google/uuid"
@@ -24,7 +24,7 @@ type Hotel struct {
 	Address    string
 	Rating     uint
 	Amentities []string
-	OwnerID    UserDomain.UserID
+	OwnerID    userDomain.UserID
 	CreatedAt  time.Time
 	EditedAt   time.Time
 	DeletedAt  time.Time
@@ -65,7 +65,7 @@ func ValidateRating(rating uint) error {
 	return nil
 }
 
-func ValidateOwnerID(ownerID UserDomain.UserID) error {
+func ValidateOwnerID(ownerID userDomain.UserID) error {
 	if ownerID == uuid.Nil {
 		return ErrInvalidHotelOwnerID
 	}

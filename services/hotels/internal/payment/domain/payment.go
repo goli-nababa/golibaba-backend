@@ -1,7 +1,7 @@
 package domain
 
 import (
-	BookingDomain "hotels-service/internal/booking/domain"
+	bookingDomain "hotels-service/internal/booking/domain"
 	"time"
 
 	"github.com/google/uuid"
@@ -26,7 +26,7 @@ const (
 type PaymentID = uuid.UUID
 type Payment struct {
 	ID             PaymentID
-	BookingID      BookingDomain.BookingID
+	BookingID      bookingDomain.BookingID
 	amount         float64
 	payment_method PaymentMetodType
 	payment_date   time.Time

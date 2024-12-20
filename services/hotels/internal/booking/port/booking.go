@@ -2,11 +2,11 @@ package port
 
 import (
 	"context"
-	RoomDomain "hotels-service/internal/room/domain"
-	UserDomain "hotels-service/internal/user/domain"
+	roomDomain "hotels-service/internal/room/domain"
+	userDomain "hotels-service/internal/user/domain"
 )
 
-type Booking interface {
-	GetUserByID(ctx context.Context, user UserDomain.UserID) (UserDomain.User, error)
-	GetRoomByID(ctx context.Context, room RoomDomain.RoomID) (RoomDomain.Room, error)
+type Repo interface {
+	GetUserByID(ctx context.Context, user userDomain.UserID) (userDomain.User, error)
+	GetRoomByID(ctx context.Context, room roomDomain.RoomID) (roomDomain.Room, error)
 }

@@ -2,8 +2,8 @@ package domain
 
 import (
 	"errors"
-	RoomDomain "hotels-service/internal/room/domain"
-	UserDomain "hotels-service/internal/user/domain"
+	roomDomain "hotels-service/internal/room/domain"
+	userDomain "hotels-service/internal/user/domain"
 	"time"
 
 	"github.com/google/uuid"
@@ -32,8 +32,8 @@ const (
 type BookingID = uuid.UUID
 type Booking struct {
 	ID           BookingID
-	UserID       UserDomain.UserID
-	RoomID       RoomDomain.RoomID
+	UserID       userDomain.UserID
+	RoomID       roomDomain.RoomID
 	CheckInDate  time.Time
 	CheckOutDate time.Time
 	TotalPrice   float64
@@ -44,8 +44,8 @@ type Booking struct {
 }
 
 type BookingFilterItem struct {
-	UserID       UserDomain.UserID
-	RoomID       RoomDomain.RoomID
+	UserID       userDomain.UserID
+	RoomID       roomDomain.RoomID
 	CheckInDate  time.Time
 	CheckOutDate time.Time
 	Status       StatusType
@@ -58,14 +58,14 @@ func ValidateID(ID BookingID) error {
 	return nil
 }
 
-func ValidateUserID(userID UserDomain.UserID) error {
+func ValidateUserID(userID userDomain.UserID) error {
 	if userID == uuid.Nil {
 		return ErrBookingUserIDRequired
 	}
 	return nil
 }
 
-func ValidateRoomID(roomID RoomDomain.RoomID) error {
+func ValidateRoomID(roomID roomDomain.RoomID) error {
 	if roomID == uuid.Nil {
 		return ErrBookingRoomIDRequired
 	}

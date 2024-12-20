@@ -3,17 +3,17 @@ package hotel
 import (
 	"context"
 	"hotels-service/internal/hotel/domain"
-	HotelPort "hotels-service/internal/hotel/port"
-	UserPort "hotels-service/internal/user/port"
+	hotelPort "hotels-service/internal/hotel/port"
+	userPort "hotels-service/internal/user/port"
 
 	"github.com/google/uuid"
 )
 
 type service struct {
-	userService UserPort.Service
+	userService userPort.Service
 }
 
-func NewService(userService UserPort.Service) HotelPort.Service {
+func NewService(userService userPort.Service) hotelPort.Service {
 	return &service{
 		userService: userService,
 	}

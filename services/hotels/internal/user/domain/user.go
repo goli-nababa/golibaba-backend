@@ -15,6 +15,7 @@ type UserID = uuid.UUID
 type User struct {
 	ID    UserID
 	Name  string
+	Phone string
 	Email string
 	Role  string
 }

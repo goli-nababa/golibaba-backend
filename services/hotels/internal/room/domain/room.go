@@ -23,7 +23,3 @@ type Room struct {
 }
 
 type RoomFilterItem struct{}
-
-func (r *Room) Validation() {
-	//TODO
-}
