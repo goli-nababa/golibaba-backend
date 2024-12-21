@@ -1,6 +1,6 @@
 package app
 
-import "user_service/config"
+import "api_gateway/config"
 
 type App interface {
 	Config() config.Config
