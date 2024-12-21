@@ -26,7 +26,6 @@ type Hotel struct {
 	Amentities []string
 	OwnerID    userDomain.UserID
 	CreatedAt  time.Time
-	EditedAt   time.Time
 	DeletedAt  time.Time
 }
 

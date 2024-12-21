@@ -18,7 +18,6 @@ type Room struct {
 	Features   []string
 	IsAvilabe  bool
 	CreateAt   time.Time
-	EditedAt   time.Time
 	DeletedAt  time.Time
 }
 

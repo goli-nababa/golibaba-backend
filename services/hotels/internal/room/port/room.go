@@ -5,7 +5,7 @@ import (
 	"hotels-service/internal/room/domain"
 )
 
-type Service interface {
+type Repo interface {
 	Create(ctx context.Context, hotel domain.Room) (domain.RoomID, error)
 	Delete(ctx context.Context, UUID domain.RoomID) error
 	Get(ctx context.Context, filter domain.RoomFilterItem) ([]domain.Room, error)
