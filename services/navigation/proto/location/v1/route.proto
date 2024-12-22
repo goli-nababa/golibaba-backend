@@ -141,11 +141,10 @@ message PopularRoute {
 }
 
 enum VehicleType {
-  VEHICLE_TYPE_UNSPECIFIED = 0;
-  VEHICLE_TYPE_AIRPLANE = 1;
-  VEHICLE_TYPE_BUS = 2;
-  VEHICLE_TYPE_TRAIN = 3;
-  VEHICLE_TYPE_SHIP = 4;
+  AIRPLANE = 0;
+  BUS = 1;
+  TRAIN = 2;
+  SHIP = 3;
 }
 
 message Route {

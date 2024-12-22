@@ -44,17 +44,13 @@ type RouteServiceClient interface {
 	UpdateRoute(ctx context.Context, in *UpdateRouteRequest, opts ...grpc.CallOption) (*UpdateRouteResponse, error)
 	DeleteRoute(ctx context.Context, in *DeleteRouteRequest, opts ...grpc.CallOption) (*DeleteRouteResponse, error)
 	SearchRoutes(ctx context.Context, in *SearchRoutesRequest, opts ...grpc.CallOption) (*SearchRoutesResponse, error)
-	// For Booking Service
 	CalculateRouteDistance(ctx context.Context, in *CalculateRouteRequest, opts ...grpc.CallOption) (*CalculateRouteResponse, error)
 	GetAvailableRoutes(ctx context.Context, in *GetAvailableRoutesRequest, opts ...grpc.CallOption) (*GetAvailableRoutesResponse, error)
 	ValidateRoute(ctx context.Context, in *ValidateRouteRequest, opts ...grpc.CallOption) (*ValidateRouteResponse, error)
-	// For Tour Service
 	GetOptimalRoutes(ctx context.Context, in *GetOptimalRoutesRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OptimalRouteResponse], error)
 	ValidateRouteForTour(ctx context.Context, in *ValidateRouteForTourRequest, opts ...grpc.CallOption) (*ValidateRouteForTourResponse, error)
-	// For Hotel Service
 	GetNearbyLocations(ctx context.Context, in *GetNearbyLocationsRequest, opts ...grpc.CallOption) (*GetNearbyLocationsResponse, error)
 	CalculateDistanceToLocation(ctx context.Context, in *CalculateDistanceRequest, opts ...grpc.CallOption) (*CalculateDistanceResponse, error)
-	// For Reporting Service
 	GetRouteStatistics(ctx context.Context, in *GetRouteStatisticsRequest, opts ...grpc.CallOption) (*GetRouteStatisticsResponse, error)
 	GetPopularRoutes(ctx context.Context, in *GetPopularRoutesRequest, opts ...grpc.CallOption) (*GetPopularRoutesResponse, error)
 }
@@ -225,17 +221,13 @@ type RouteServiceServer interface {
 	UpdateRoute(context.Context, *UpdateRouteRequest) (*UpdateRouteResponse, error)
 	DeleteRoute(context.Context, *DeleteRouteRequest) (*DeleteRouteResponse, error)
 	SearchRoutes(context.Context, *SearchRoutesRequest) (*SearchRoutesResponse, error)
-	// For Booking Service
 	CalculateRouteDistance(context.Context, *CalculateRouteRequest) (*CalculateRouteResponse, error)
 	GetAvailableRoutes(context.Context, *GetAvailableRoutesRequest) (*GetAvailableRoutesResponse, error)
 	ValidateRoute(context.Context, *ValidateRouteRequest) (*ValidateRouteResponse, error)
-	// For Tour Service
 	GetOptimalRoutes(*GetOptimalRoutesRequest, grpc.ServerStreamingServer[OptimalRouteResponse]) error
 	ValidateRouteForTour(context.Context, *ValidateRouteForTourRequest) (*ValidateRouteForTourResponse, error)
-	// For Hotel Service
 	GetNearbyLocations(context.Context, *GetNearbyLocationsRequest) (*GetNearbyLocationsResponse, error)
 	CalculateDistanceToLocation(context.Context, *CalculateDistanceRequest) (*CalculateDistanceResponse, error)
-	// For Reporting Service
 	GetRouteStatistics(context.Context, *GetRouteStatisticsRequest) (*GetRouteStatisticsResponse, error)
 	GetPopularRoutes(context.Context, *GetPopularRoutesRequest) (*GetPopularRoutesResponse, error)
 	mustEmbedUnimplementedRouteServiceServer()
