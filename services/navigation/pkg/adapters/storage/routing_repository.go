@@ -162,3 +162,132 @@ func (r *routingRepository) FindRoutes(ctx context.Context, filter domain.RouteF
 
 	return routes, nil
 }
+
+func (r *routingRepository) GetStatistics(ctx context.Context, filter domain.StatisticsFilter) (*domain.RouteStatistics, error) {
+	db := r.db.WithContext(ctx)
+	stats := &domain.RouteStatistics{
+		RoutesByVehicleType: make(map[string]int),
+	}
+
+	baseQuery := db.Model(&domain.Routing{}).Where("deleted_at IS NULL")
+	if !filter.StartTime.IsZero() {
+		baseQuery = baseQuery.Where("created_at >= ?", filter.StartTime)
+	}
+	if !filter.EndTime.IsZero() {
+		baseQuery = baseQuery.Where("created_at <= ?", filter.EndTime)
+	}
+
+	var totalCount int64
+	if err := baseQuery.Count(&totalCount).Error; err != nil {
+		return nil, fmt.Errorf("failed to count routes: %w", err)
+	}
+	stats.TotalRoutes = int(totalCount)
+
+	var totalDistance struct {
+		Total float64
+	}
+	if err := baseQuery.Select("COALESCE(SUM(distance), 0) as total").Scan(&totalDistance).Error; err != nil {
+		return nil, fmt.Errorf("failed to calculate total distance: %w", err)
+	}
+	stats.TotalDistance = totalDistance.Total
+
+	var routes []struct {
+		ID           uint
+		VehicleTypes types.VehicleTypes `gorm:"type:vehicle_type[]"`
+	}
+
+	if err := baseQuery.Find(&routes).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch routes for vehicle type stats: %w", err)
+	}
+
+	vehicleTypeCounts := make(map[string]int)
+	for _, route := range routes {
+		for _, vType := range route.VehicleTypes {
+			vehicleTypeCounts[string(vType)]++
+		}
+	}
+	stats.RoutesByVehicleType = vehicleTypeCounts
+
+	type PopularRouteResult struct {
+		RouteID       uint
+		UsageCount    int
+		AverageRating float64
+	}
+	var popularRoutes []PopularRouteResult
+
+	popularRoutesQuery := db.Table("routings").
+		Select(`
+            routings.id as route_id,
+            COUNT(route_usages.id) as usage_count,
+            COALESCE(AVG(NULLIF(route_usages.rating, 0)), 0) as average_rating
+        `).
+		Joins("LEFT JOIN route_usages ON routings.id = route_usages.route_id").
+		Where("routings.deleted_at IS NULL")
+
+	if !filter.StartTime.IsZero() {
+		popularRoutesQuery = popularRoutesQuery.Where("route_usages.used_at >= ?", filter.StartTime)
+	}
+	if !filter.EndTime.IsZero() {
+		popularRoutesQuery = popularRoutesQuery.Where("route_usages.used_at <= ?", filter.EndTime)
+	}
+
+	if err := popularRoutesQuery.
+		Group("routings.id").
+		Order("usage_count DESC, average_rating DESC").
+		Limit(10).
+		Scan(&popularRoutes).Error; err != nil {
+		return nil, fmt.Errorf("failed to get popular routes: %w", err)
+	}
+
+	stats.PopularRoutes = make([]domain.PopularRoute, len(popularRoutes))
+	for i, pr := range popularRoutes {
+		var route domain.Routing
+		if err := db.Preload("From").
+			Preload("To").
+			First(&route, pr.RouteID).Error; err != nil {
+			return nil, fmt.Errorf("failed to get route details for ID %d: %w", pr.RouteID, err)
+		}
+
+		stats.PopularRoutes[i] = domain.PopularRoute{
+			Route:         &route,
+			UsageCount:    pr.UsageCount,
+			AverageRating: pr.AverageRating,
+		}
+	}
+
+	if filter.VehicleType != "" {
+		filteredStats := &domain.RouteStatistics{
+			RoutesByVehicleType: map[string]int{
+				string(filter.VehicleType): stats.RoutesByVehicleType[string(filter.VehicleType)],
+			},
+		}
+
+		var vehicleTypeStats struct {
+			Count    int64
+			Distance float64
+		}
+
+		vehicleTypeQuery := baseQuery.
+			Where("? = ANY(vehicle_types)", filter.VehicleType).
+			Select("COUNT(*) as count, COALESCE(SUM(distance), 0) as distance")
+
+		if err := vehicleTypeQuery.Scan(&vehicleTypeStats).Error; err != nil {
+			return nil, fmt.Errorf("failed to get vehicle type specific stats: %w", err)
+		}
+
+		filteredStats.TotalRoutes = int(vehicleTypeStats.Count)
+		filteredStats.TotalDistance = vehicleTypeStats.Distance
+
+		var filteredPopularRoutes []domain.PopularRoute
+		for _, pr := range stats.PopularRoutes {
+			if pr.Route.SupportsVehicleType(filter.VehicleType) {
+				filteredPopularRoutes = append(filteredPopularRoutes, pr)
+			}
+		}
+		filteredStats.PopularRoutes = filteredPopularRoutes
+
+		return filteredStats, nil
+	}
+
+	return stats, nil
+}

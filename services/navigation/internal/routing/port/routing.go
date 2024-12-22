@@ -13,4 +13,5 @@ type Repo interface {
 	GetByUUID(ctx context.Context, uuid string) (*domain.Routing, error)
 	GetByCode(ctx context.Context, code string) (*domain.Routing, error)
 	FindRoutes(ctx context.Context, filter domain.RouteFilter) ([]domain.Routing, error)
+	GetStatistics(ctx context.Context, filter domain.StatisticsFilter) (*domain.RouteStatistics, error)
 }

@@ -89,3 +89,28 @@ func (r *Routing) Update(code string, fromID, toID uint, distance float64, vehic
 func (r *Routing) SupportsVehicleType(vehicleType types.VehicleType) bool {
 	return r.VehicleTypes.Contains(vehicleType)
 }
+
+type RouteDetails struct {
+	Distance      float64
+	EstimatedTime int // in minutes
+	EstimatedCost float64
+}
+
+type OptimalRoute struct {
+	Route           *Routing
+	EfficiencyScore float64
+	Criteria        string
+}
+
+type RouteStatistics struct {
+	TotalRoutes         int
+	TotalDistance       float64
+	RoutesByVehicleType map[string]int
+	PopularRoutes       []PopularRoute
+}
+
+type PopularRoute struct {
+	Route         *Routing
+	UsageCount    int
+	AverageRating float64
+}

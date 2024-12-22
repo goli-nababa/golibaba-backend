@@ -19,11 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RouteService_CreateRoute_FullMethodName  = "/location.v1.RouteService/CreateRoute"
-	RouteService_GetRoute_FullMethodName     = "/location.v1.RouteService/GetRoute"
-	RouteService_UpdateRoute_FullMethodName  = "/location.v1.RouteService/UpdateRoute"
-	RouteService_DeleteRoute_FullMethodName  = "/location.v1.RouteService/DeleteRoute"
-	RouteService_SearchRoutes_FullMethodName = "/location.v1.RouteService/SearchRoutes"
+	RouteService_CreateRoute_FullMethodName                 = "/location.v1.RouteService/CreateRoute"
+	RouteService_GetRoute_FullMethodName                    = "/location.v1.RouteService/GetRoute"
+	RouteService_UpdateRoute_FullMethodName                 = "/location.v1.RouteService/UpdateRoute"
+	RouteService_DeleteRoute_FullMethodName                 = "/location.v1.RouteService/DeleteRoute"
+	RouteService_SearchRoutes_FullMethodName                = "/location.v1.RouteService/SearchRoutes"
+	RouteService_CalculateRouteDistance_FullMethodName      = "/location.v1.RouteService/CalculateRouteDistance"
+	RouteService_GetAvailableRoutes_FullMethodName          = "/location.v1.RouteService/GetAvailableRoutes"
+	RouteService_ValidateRoute_FullMethodName               = "/location.v1.RouteService/ValidateRoute"
+	RouteService_GetOptimalRoutes_FullMethodName            = "/location.v1.RouteService/GetOptimalRoutes"
+	RouteService_ValidateRouteForTour_FullMethodName        = "/location.v1.RouteService/ValidateRouteForTour"
+	RouteService_GetNearbyLocations_FullMethodName          = "/location.v1.RouteService/GetNearbyLocations"
+	RouteService_CalculateDistanceToLocation_FullMethodName = "/location.v1.RouteService/CalculateDistanceToLocation"
+	RouteService_GetRouteStatistics_FullMethodName          = "/location.v1.RouteService/GetRouteStatistics"
+	RouteService_GetPopularRoutes_FullMethodName            = "/location.v1.RouteService/GetPopularRoutes"
 )
 
 // RouteServiceClient is the client API for RouteService service.
@@ -35,6 +44,19 @@ type RouteServiceClient interface {
 	UpdateRoute(ctx context.Context, in *UpdateRouteRequest, opts ...grpc.CallOption) (*UpdateRouteResponse, error)
 	DeleteRoute(ctx context.Context, in *DeleteRouteRequest, opts ...grpc.CallOption) (*DeleteRouteResponse, error)
 	SearchRoutes(ctx context.Context, in *SearchRoutesRequest, opts ...grpc.CallOption) (*SearchRoutesResponse, error)
+	// For Booking Service
+	CalculateRouteDistance(ctx context.Context, in *CalculateRouteRequest, opts ...grpc.CallOption) (*CalculateRouteResponse, error)
+	GetAvailableRoutes(ctx context.Context, in *GetAvailableRoutesRequest, opts ...grpc.CallOption) (*GetAvailableRoutesResponse, error)
+	ValidateRoute(ctx context.Context, in *ValidateRouteRequest, opts ...grpc.CallOption) (*ValidateRouteResponse, error)
+	// For Tour Service
+	GetOptimalRoutes(ctx context.Context, in *GetOptimalRoutesRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OptimalRouteResponse], error)
+	ValidateRouteForTour(ctx context.Context, in *ValidateRouteForTourRequest, opts ...grpc.CallOption) (*ValidateRouteForTourResponse, error)
+	// For Hotel Service
+	GetNearbyLocations(ctx context.Context, in *GetNearbyLocationsRequest, opts ...grpc.CallOption) (*GetNearbyLocationsResponse, error)
+	CalculateDistanceToLocation(ctx context.Context, in *CalculateDistanceRequest, opts ...grpc.CallOption) (*CalculateDistanceResponse, error)
+	// For Reporting Service
+	GetRouteStatistics(ctx context.Context, in *GetRouteStatisticsRequest, opts ...grpc.CallOption) (*GetRouteStatisticsResponse, error)
+	GetPopularRoutes(ctx context.Context, in *GetPopularRoutesRequest, opts ...grpc.CallOption) (*GetPopularRoutesResponse, error)
 }
 
 type routeServiceClient struct {
@@ -95,6 +117,105 @@ func (c *routeServiceClient) SearchRoutes(ctx context.Context, in *SearchRoutesR
 	return out, nil
 }
 
+func (c *routeServiceClient) CalculateRouteDistance(ctx context.Context, in *CalculateRouteRequest, opts ...grpc.CallOption) (*CalculateRouteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CalculateRouteResponse)
+	err := c.cc.Invoke(ctx, RouteService_CalculateRouteDistance_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routeServiceClient) GetAvailableRoutes(ctx context.Context, in *GetAvailableRoutesRequest, opts ...grpc.CallOption) (*GetAvailableRoutesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAvailableRoutesResponse)
+	err := c.cc.Invoke(ctx, RouteService_GetAvailableRoutes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routeServiceClient) ValidateRoute(ctx context.Context, in *ValidateRouteRequest, opts ...grpc.CallOption) (*ValidateRouteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ValidateRouteResponse)
+	err := c.cc.Invoke(ctx, RouteService_ValidateRoute_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routeServiceClient) GetOptimalRoutes(ctx context.Context, in *GetOptimalRoutesRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[OptimalRouteResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &RouteService_ServiceDesc.Streams[0], RouteService_GetOptimalRoutes_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[GetOptimalRoutesRequest, OptimalRouteResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type RouteService_GetOptimalRoutesClient = grpc.ServerStreamingClient[OptimalRouteResponse]
+
+func (c *routeServiceClient) ValidateRouteForTour(ctx context.Context, in *ValidateRouteForTourRequest, opts ...grpc.CallOption) (*ValidateRouteForTourResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ValidateRouteForTourResponse)
+	err := c.cc.Invoke(ctx, RouteService_ValidateRouteForTour_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routeServiceClient) GetNearbyLocations(ctx context.Context, in *GetNearbyLocationsRequest, opts ...grpc.CallOption) (*GetNearbyLocationsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetNearbyLocationsResponse)
+	err := c.cc.Invoke(ctx, RouteService_GetNearbyLocations_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routeServiceClient) CalculateDistanceToLocation(ctx context.Context, in *CalculateDistanceRequest, opts ...grpc.CallOption) (*CalculateDistanceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CalculateDistanceResponse)
+	err := c.cc.Invoke(ctx, RouteService_CalculateDistanceToLocation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routeServiceClient) GetRouteStatistics(ctx context.Context, in *GetRouteStatisticsRequest, opts ...grpc.CallOption) (*GetRouteStatisticsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetRouteStatisticsResponse)
+	err := c.cc.Invoke(ctx, RouteService_GetRouteStatistics_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *routeServiceClient) GetPopularRoutes(ctx context.Context, in *GetPopularRoutesRequest, opts ...grpc.CallOption) (*GetPopularRoutesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetPopularRoutesResponse)
+	err := c.cc.Invoke(ctx, RouteService_GetPopularRoutes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RouteServiceServer is the server API for RouteService service.
 // All implementations must embed UnimplementedRouteServiceServer
 // for forward compatibility.
@@ -104,6 +225,19 @@ type RouteServiceServer interface {
 	UpdateRoute(context.Context, *UpdateRouteRequest) (*UpdateRouteResponse, error)
 	DeleteRoute(context.Context, *DeleteRouteRequest) (*DeleteRouteResponse, error)
 	SearchRoutes(context.Context, *SearchRoutesRequest) (*SearchRoutesResponse, error)
+	// For Booking Service
+	CalculateRouteDistance(context.Context, *CalculateRouteRequest) (*CalculateRouteResponse, error)
+	GetAvailableRoutes(context.Context, *GetAvailableRoutesRequest) (*GetAvailableRoutesResponse, error)
+	ValidateRoute(context.Context, *ValidateRouteRequest) (*ValidateRouteResponse, error)
+	// For Tour Service
+	GetOptimalRoutes(*GetOptimalRoutesRequest, grpc.ServerStreamingServer[OptimalRouteResponse]) error
+	ValidateRouteForTour(context.Context, *ValidateRouteForTourRequest) (*ValidateRouteForTourResponse, error)
+	// For Hotel Service
+	GetNearbyLocations(context.Context, *GetNearbyLocationsRequest) (*GetNearbyLocationsResponse, error)
+	CalculateDistanceToLocation(context.Context, *CalculateDistanceRequest) (*CalculateDistanceResponse, error)
+	// For Reporting Service
+	GetRouteStatistics(context.Context, *GetRouteStatisticsRequest) (*GetRouteStatisticsResponse, error)
+	GetPopularRoutes(context.Context, *GetPopularRoutesRequest) (*GetPopularRoutesResponse, error)
 	mustEmbedUnimplementedRouteServiceServer()
 }
 
@@ -128,6 +262,33 @@ func (UnimplementedRouteServiceServer) DeleteRoute(context.Context, *DeleteRoute
 }
 func (UnimplementedRouteServiceServer) SearchRoutes(context.Context, *SearchRoutesRequest) (*SearchRoutesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchRoutes not implemented")
+}
+func (UnimplementedRouteServiceServer) CalculateRouteDistance(context.Context, *CalculateRouteRequest) (*CalculateRouteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CalculateRouteDistance not implemented")
+}
+func (UnimplementedRouteServiceServer) GetAvailableRoutes(context.Context, *GetAvailableRoutesRequest) (*GetAvailableRoutesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableRoutes not implemented")
+}
+func (UnimplementedRouteServiceServer) ValidateRoute(context.Context, *ValidateRouteRequest) (*ValidateRouteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateRoute not implemented")
+}
+func (UnimplementedRouteServiceServer) GetOptimalRoutes(*GetOptimalRoutesRequest, grpc.ServerStreamingServer[OptimalRouteResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method GetOptimalRoutes not implemented")
+}
+func (UnimplementedRouteServiceServer) ValidateRouteForTour(context.Context, *ValidateRouteForTourRequest) (*ValidateRouteForTourResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateRouteForTour not implemented")
+}
+func (UnimplementedRouteServiceServer) GetNearbyLocations(context.Context, *GetNearbyLocationsRequest) (*GetNearbyLocationsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNearbyLocations not implemented")
+}
+func (UnimplementedRouteServiceServer) CalculateDistanceToLocation(context.Context, *CalculateDistanceRequest) (*CalculateDistanceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CalculateDistanceToLocation not implemented")
+}
+func (UnimplementedRouteServiceServer) GetRouteStatistics(context.Context, *GetRouteStatisticsRequest) (*GetRouteStatisticsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRouteStatistics not implemented")
+}
+func (UnimplementedRouteServiceServer) GetPopularRoutes(context.Context, *GetPopularRoutesRequest) (*GetPopularRoutesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPopularRoutes not implemented")
 }
 func (UnimplementedRouteServiceServer) mustEmbedUnimplementedRouteServiceServer() {}
 func (UnimplementedRouteServiceServer) testEmbeddedByValue()                      {}
@@ -240,6 +401,161 @@ func _RouteService_SearchRoutes_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RouteService_CalculateRouteDistance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CalculateRouteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RouteServiceServer).CalculateRouteDistance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RouteService_CalculateRouteDistance_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RouteServiceServer).CalculateRouteDistance(ctx, req.(*CalculateRouteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RouteService_GetAvailableRoutes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAvailableRoutesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RouteServiceServer).GetAvailableRoutes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RouteService_GetAvailableRoutes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RouteServiceServer).GetAvailableRoutes(ctx, req.(*GetAvailableRoutesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RouteService_ValidateRoute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateRouteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RouteServiceServer).ValidateRoute(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RouteService_ValidateRoute_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RouteServiceServer).ValidateRoute(ctx, req.(*ValidateRouteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RouteService_GetOptimalRoutes_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GetOptimalRoutesRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(RouteServiceServer).GetOptimalRoutes(m, &grpc.GenericServerStream[GetOptimalRoutesRequest, OptimalRouteResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type RouteService_GetOptimalRoutesServer = grpc.ServerStreamingServer[OptimalRouteResponse]
+
+func _RouteService_ValidateRouteForTour_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateRouteForTourRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RouteServiceServer).ValidateRouteForTour(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RouteService_ValidateRouteForTour_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RouteServiceServer).ValidateRouteForTour(ctx, req.(*ValidateRouteForTourRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RouteService_GetNearbyLocations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNearbyLocationsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RouteServiceServer).GetNearbyLocations(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RouteService_GetNearbyLocations_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RouteServiceServer).GetNearbyLocations(ctx, req.(*GetNearbyLocationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RouteService_CalculateDistanceToLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CalculateDistanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RouteServiceServer).CalculateDistanceToLocation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RouteService_CalculateDistanceToLocation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RouteServiceServer).CalculateDistanceToLocation(ctx, req.(*CalculateDistanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RouteService_GetRouteStatistics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRouteStatisticsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RouteServiceServer).GetRouteStatistics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RouteService_GetRouteStatistics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RouteServiceServer).GetRouteStatistics(ctx, req.(*GetRouteStatisticsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RouteService_GetPopularRoutes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPopularRoutesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RouteServiceServer).GetPopularRoutes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RouteService_GetPopularRoutes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RouteServiceServer).GetPopularRoutes(ctx, req.(*GetPopularRoutesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RouteService_ServiceDesc is the grpc.ServiceDesc for RouteService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -267,7 +583,45 @@ var RouteService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "SearchRoutes",
 			Handler:    _RouteService_SearchRoutes_Handler,
 		},
+		{
+			MethodName: "CalculateRouteDistance",
+			Handler:    _RouteService_CalculateRouteDistance_Handler,
+		},
+		{
+			MethodName: "GetAvailableRoutes",
+			Handler:    _RouteService_GetAvailableRoutes_Handler,
+		},
+		{
+			MethodName: "ValidateRoute",
+			Handler:    _RouteService_ValidateRoute_Handler,
+		},
+		{
+			MethodName: "ValidateRouteForTour",
+			Handler:    _RouteService_ValidateRouteForTour_Handler,
+		},
+		{
+			MethodName: "GetNearbyLocations",
+			Handler:    _RouteService_GetNearbyLocations_Handler,
+		},
+		{
+			MethodName: "CalculateDistanceToLocation",
+			Handler:    _RouteService_CalculateDistanceToLocation_Handler,
+		},
+		{
+			MethodName: "GetRouteStatistics",
+			Handler:    _RouteService_GetRouteStatistics_Handler,
+		},
+		{
+			MethodName: "GetPopularRoutes",
+			Handler:    _RouteService_GetPopularRoutes_Handler,
+		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "GetOptimalRoutes",
+			Handler:       _RouteService_GetOptimalRoutes_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "location/v1/route.proto",
 }

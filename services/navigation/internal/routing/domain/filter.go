@@ -2,15 +2,17 @@ package domain
 
 import (
 	"navigation_service/internal/common/types"
+	"time"
 )
 
 type RouteFilter struct {
-	FromID      uint              `json:"from_id"`
-	ToID        uint              `json:"to_id"`
-	VehicleType types.VehicleType `json:"vehicle_type"`
-	ActiveOnly  bool              `json:"active_only"`
-	PageSize    int               `json:"page_size"`
-	PageNumber  int               `json:"page_number"`
+	FromID        uint              `json:"from_id"`
+	ToID          uint              `json:"to_id"`
+	VehicleType   types.VehicleType `json:"vehicle_type"`
+	ActiveOnly    bool              `json:"active_only"`
+	PageSize      int               `json:"page_size"`
+	PageNumber    int               `json:"page_number"`
+	DepartureTime time.Time         `json:"departure_time"`
 }
 
 func NewRouteFilter() RouteFilter {
@@ -45,4 +47,10 @@ func (f *RouteFilter) GetOffset() int {
 // GetLimit returns the limit for pagination
 func (f *RouteFilter) GetLimit() int {
 	return f.PageSize
+}
+
+type StatisticsFilter struct {
+	StartTime   time.Time
+	EndTime     time.Time
+	VehicleType types.VehicleType
 }
