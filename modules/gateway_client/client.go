@@ -8,19 +8,19 @@ import (
 	"github.com/goli-nababa/golibaba-backend/common"
 )
 
-type GatewayService struct {
+type gatewayService struct {
 	Url     string
 	Version int64
 }
 
 func NewGatewayClient(url string, version int64) GatewayService {
-	return GatewayService{
+	return &gatewayService{
 		Url:     url,
 		Version: version,
 	}
 }
 
-func (gateway *GatewayService) RegisterService(service common.Service) error {
+func (gateway *gatewayService) RegisterService(service common.Service) error {
 	res, err := http.Get(gateway.Url)
 
 	if err != nil {
