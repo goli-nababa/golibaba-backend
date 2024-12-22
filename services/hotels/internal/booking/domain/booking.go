@@ -50,28 +50,28 @@ type BookingFilterItem struct {
 	Status       StatusType
 }
 
-func ValidateID(ID BookingID) error {
+func validateID(ID BookingID) error {
 	if ID == uuid.Nil {
 		return ErrBookingIDRequired
 	}
 	return nil
 }
 
-func ValidateUserID(userID userDomain.UserID) error {
+func validateUserID(userID userDomain.UserID) error {
 	if userID == uuid.Nil {
 		return ErrBookingUserIDRequired
 	}
 	return nil
 }
 
-func ValidateRoomID(roomID roomDomain.RoomID) error {
+func validateRoomID(roomID roomDomain.RoomID) error {
 	if roomID == uuid.Nil {
 		return ErrBookingRoomIDRequired
 	}
 	return nil
 }
 
-func ValidateDates(checkInDate time.Time, checkOutDate time.Time) error {
+func validateDates(checkInDate time.Time, checkOutDate time.Time) error {
 	if checkInDate.IsZero() {
 		return ErrBookingCheckInDateRequired
 	}
@@ -84,14 +84,14 @@ func ValidateDates(checkInDate time.Time, checkOutDate time.Time) error {
 	return nil
 }
 
-func ValidatePrice(totalPrice float64) error {
+func validatePrice(totalPrice float64) error {
 	if totalPrice <= 0 {
 		return ErrBookingInvalidPrice
 	}
 	return nil
 }
 
-func ValidateStatus(status StatusType) error {
+func validateStatus(status StatusType) error {
 	if status == StatusTypeUnknow {
 		return ErrBookingStatusRequired
 	}
@@ -99,22 +99,22 @@ func ValidateStatus(status StatusType) error {
 }
 
 func (b *Booking) Validate() error {
-	if err := ValidateID(b.ID); err != nil {
+	if err := validateID(b.ID); err != nil {
 		return err
 	}
-	if err := ValidateUserID(b.UserID); err != nil {
+	if err := validateUserID(b.UserID); err != nil {
 		return err
 	}
-	if err := ValidateRoomID(b.RoomID); err != nil {
+	if err := validateRoomID(b.RoomID); err != nil {
 		return err
 	}
-	if err := ValidateDates(b.CheckInDate, b.CheckOutDate); err != nil {
+	if err := validateDates(b.CheckInDate, b.CheckOutDate); err != nil {
 		return err
 	}
-	if err := ValidatePrice(b.TotalPrice); err != nil {
+	if err := validatePrice(b.TotalPrice); err != nil {
 		return err
 	}
-	if err := ValidateStatus(b.Status); err != nil {
+	if err := validateStatus(b.Status); err != nil {
 		return err
 	}
 	return nil
