@@ -151,7 +151,7 @@ func (s *routeServer) CreateRoute(ctx context.Context, req *pb.CreateRouteReques
 		Active:       true,
 	}
 
-	if err := s.app.RoteService(ctx).CreateRouting(ctx, route); err != nil {
+	if err := s.app.RoutingService(ctx).CreateRouting(ctx, route); err != nil {
 		return nil, err
 	}
 
@@ -161,7 +161,7 @@ func (s *routeServer) CreateRoute(ctx context.Context, req *pb.CreateRouteReques
 }
 
 func (s *routeServer) GetRoute(ctx context.Context, req *pb.GetRouteRequest) (*pb.GetRouteResponse, error) {
-	route, err := s.app.RoteService(ctx).GetRouting(ctx, uint(req.Id))
+	route, err := s.app.RoutingService(ctx).GetRouting(ctx, uint(req.Id))
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +185,7 @@ func (s *routeServer) UpdateRoute(ctx context.Context, req *pb.UpdateRouteReques
 		Active:       req.Active,
 	}
 
-	if err := s.app.RoteService(ctx).UpdateRouting(ctx, route); err != nil {
+	if err := s.app.RoutingService(ctx).UpdateRouting(ctx, route); err != nil {
 		return nil, err
 	}
 
@@ -195,7 +195,7 @@ func (s *routeServer) UpdateRoute(ctx context.Context, req *pb.UpdateRouteReques
 }
 
 func (s *routeServer) DeleteRoute(ctx context.Context, req *pb.DeleteRouteRequest) (*pb.DeleteRouteResponse, error) {
-	if err := s.app.RoteService(ctx).DeleteRouting(ctx, uint(req.Id)); err != nil {
+	if err := s.app.RoutingService(ctx).DeleteRouting(ctx, uint(req.Id)); err != nil {
 		return nil, err
 	}
 	return &pb.DeleteRouteResponse{}, nil
@@ -211,7 +211,7 @@ func (s *routeServer) SearchRoutes(ctx context.Context, req *pb.SearchRoutesRequ
 		PageNumber:  int(req.PageNumber),
 	}
 
-	routes, err := s.app.RoteService(ctx).FindRouting(ctx, filter)
+	routes, err := s.app.RoutingService(ctx).FindRouting(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +228,7 @@ func (s *routeServer) SearchRoutes(ctx context.Context, req *pb.SearchRoutesRequ
 }
 
 func (s *routeServer) CalculateRouteDistance(ctx context.Context, req *pb.CalculateRouteRequest) (*pb.CalculateRouteResponse, error) {
-	details, err := s.app.RoteService(ctx).CalculateDistance(ctx, req.FromId, req.ToId, types.VehicleType(req.VehicleType.String()))
+	details, err := s.app.RoutingService(ctx).CalculateDistance(ctx, req.FromId, req.ToId, types.VehicleType(req.VehicleType.String()))
 	if err != nil {
 		return nil, err
 	}
@@ -241,7 +241,7 @@ func (s *routeServer) CalculateRouteDistance(ctx context.Context, req *pb.Calcul
 }
 
 func (s *routeServer) ValidateRoute(ctx context.Context, req *pb.ValidateRouteRequest) (*pb.ValidateRouteResponse, error) {
-	err := s.app.RoteService(ctx).ValidateRoutingForVehicleType(ctx, uint(req.RouteId), types.VehicleType(req.VehicleType.String()))
+	err := s.app.RoutingService(ctx).ValidateRoutingForVehicleType(ctx, uint(req.RouteId), types.VehicleType(req.VehicleType.String()))
 	if err != nil {
 		return &pb.ValidateRouteResponse{
 			IsValid:      false,
@@ -255,7 +255,7 @@ func (s *routeServer) ValidateRoute(ctx context.Context, req *pb.ValidateRouteRe
 }
 
 func (s *routeServer) GetNearbyLocations(ctx context.Context, req *pb.GetNearbyLocationsRequest) (*pb.GetNearbyLocationsResponse, error) {
-	locations, distances, err := s.app.RoteService(ctx).FindNearbyLocations(ctx, req.LocationId, req.RadiusKm, types.LocationType(req.LocationType.String()))
+	locations, distances, err := s.app.RoutingService(ctx).FindNearbyLocations(ctx, req.LocationId, req.RadiusKm, types.LocationType(req.LocationType.String()))
 	if err != nil {
 		return nil, err
 	}
@@ -269,6 +269,30 @@ func (s *routeServer) GetNearbyLocations(ctx context.Context, req *pb.GetNearbyL
 		Locations: protoLocations,
 		Distances: distances,
 	}, nil
+}
+
+func (s *routeServer) GetAvailableRoutes(ctx context.Context, req *pb.GetAvailableRoutesRequest) (*pb.GetAvailableRoutesResponse, error) {
+	filter := RoutingDomain.RouteFilter{
+		FromID:      uint(req.FromId),
+		ToID:        uint(req.ToId),
+		VehicleType: types.VehicleType(req.VehicleType.String()),
+		PageSize:    1000,
+		PageNumber:  1,
+	}
+
+	routes, err := s.app.RoutingService(ctx).FindRouting(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	protoRoutes := make([]*pb.Route, len(routes))
+	for i, route := range routes {
+		protoRoutes[i] = convertToProtoRoute(&route)
+	}
+
+	return &pb.GetAvailableRoutesResponse{
+		Routes:     protoRoutes,
+		TotalCount: int32(len(routes)),
+	}, err
 }
 
 func convertToProtoRoute(route *RoutingDomain.Routing) *pb.Route {

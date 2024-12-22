@@ -55,7 +55,7 @@ func (a *app) routeServiceWithDB(db *gorm.DB) routePort.Service {
 	return routeSystem.NewService(routeRepo, locationRepo)
 }
 
-func (a *app) RoteService(ctx context.Context) routePort.Service {
+func (a *app) RoutingService(ctx context.Context) routePort.Service {
 	db := appCtx.GetDB(ctx)
 	if db == nil {
 		if a.routeService == nil {

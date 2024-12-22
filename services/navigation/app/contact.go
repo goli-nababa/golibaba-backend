@@ -10,7 +10,7 @@ import (
 
 type App interface {
 	LocationService(ctx context.Context) LocationPort.Service
-	RoteService(ctx context.Context) routePort.Service
+	RoutingService(ctx context.Context) routePort.Service
 	DB() *gorm.DB
 	Config() config.Config
 }

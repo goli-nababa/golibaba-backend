@@ -47,7 +47,7 @@ func Bootstrap(appContainer di.App, cfg config.Config) error {
 
 	// Services
 	locationService := services.NewLocationService(appContainer.LocationService(context.Background()))
-	routingService := services.NewRoutingService(appContainer.RoteService(context.Background()))
+	routingService := services.NewRoutingService(appContainer.RoutingService(context.Background()))
 
 	// Handlers
 	locationHandler := handlers.NewLocationHandler(locationService)
