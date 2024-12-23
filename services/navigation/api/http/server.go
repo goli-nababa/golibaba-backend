@@ -7,12 +7,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/recover"
 	"navigation_service/api/http/middlewares"
 	"navigation_service/api/http/routes"
 	"navigation_service/api/http/services"
 	di "navigation_service/app"
 	"navigation_service/config"
+	"navigation_service/pkg/errors"
 )
 
 func Bootstrap(appContainer di.App, cfg config.Config) error {
@@ -36,7 +36,7 @@ func Bootstrap(appContainer di.App, cfg config.Config) error {
 	app.Static("/", "./web")
 
 	// Middleware
-	app.Use(recover.New())
+	app.Use(errors.ErrorMiddleware)
 	app.Use(logger.New())
 	app.Use(middleware.LoggerMiddleware(&cfg))
 	app.Use(cors.New(cors.Config{

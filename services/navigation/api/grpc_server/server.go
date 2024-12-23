@@ -9,6 +9,7 @@ import (
 	"navigation_service/internal/common/types"
 	"navigation_service/internal/location/domain"
 	RoutingDomain "navigation_service/internal/routing/domain"
+	"navigation_service/pkg/errors"
 	pb "navigation_service/proto/gen/go/location/v1"
 	"net"
 )
@@ -33,7 +34,9 @@ func Bootstrap(app di.App, port uint) error {
 		return fmt.Errorf("failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(errors.UnaryServerInterceptor()),
+	)
 	locationSrv, routeSrv := newServer(app)
 
 	pb.RegisterLocationServiceServer(s, locationSrv)
