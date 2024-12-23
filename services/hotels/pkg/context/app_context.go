@@ -3,19 +3,30 @@ package context
 import (
 	"context"
 
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type appContext struct {
 	context.Context
-	db *gorm.DB
+	db     *gorm.DB
+	logger *zap.Logger
 }
 
 type AppContextType func(*appContext) *appContext
 
+var defaultLogger *zap.Logger
+
 func WithDB(db *gorm.DB) AppContextType {
 	return func(ac *appContext) *appContext {
 		ac.db = db
+		return ac
+	}
+}
+
+func WithLogger(logger *zap.Logger) AppContextType {
+	return func(ac *appContext) *appContext {
+		ac.logger = logger
 		return ac
 	}
 }
@@ -42,4 +53,19 @@ func GetDB(ctx context.Context) *gorm.DB {
 		return nil
 	}
 	return appCtx.db
+}
+
+func SetLogger(ctx context.Context, logger *zap.Logger) {
+	appCtx, ok := ctx.(*appContext)
+	if ok {
+		appCtx.logger = logger
+	}
+}
+
+func GetLogger(ctx context.Context) *zap.Logger {
+	appCtx, ok := ctx.(*appContext)
+	if !ok || appCtx.logger == nil {
+		return defaultLogger
+	}
+	return appCtx.logger
 }

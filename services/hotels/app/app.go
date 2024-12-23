@@ -1,10 +1,12 @@
 package app
 
 import (
+	"context"
 	"hotels-service/config"
 	"hotels-service/internal/booking"
 	bookingPort "hotels-service/internal/booking/port"
 	"hotels-service/pkg/adapters/storage"
+	appCtx "hotels-service/pkg/context"
 	"hotels-service/pkg/postgress"
 
 	"gorm.io/gorm"
@@ -47,8 +49,14 @@ func (a *app) DB() *gorm.DB {
 	return a.db
 }
 
-func (a *app) bookingSerivce() bookingPort.Service {
-
+func (a *app) bookingSerivce(ctx context.Context) bookingPort.Service {
+	db := appCtx.GetDB(ctx)
+	if db == nil {
+		if a.bookingService == nil {
+			a.bookingService = a.bookingServiceWithDB(a.db)
+		}
+		return a.bookingService
+	}
 	return nil
 }
 
