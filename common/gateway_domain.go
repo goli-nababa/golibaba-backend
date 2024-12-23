@@ -18,7 +18,7 @@ type Service struct {
 	Version   string              // The version of the service.
 	UrlPrefix string              // The URL prefix for routing requests to this service.
 	BaseUrl   string              // The base URL used for inter-service communication.
-	mapping   map[string]Endpoint // Internal mapping of endpoints for the service.
+	Mapping   map[string]Endpoint // Internal mapping of endpoints for the service.
 	HeartBeat HeartBeat           // Heartbeat configuration for monitoring the service's health.
 	Headers   map[string]any      // Default headers to be applied to outgoing requests.
 }
