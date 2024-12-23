@@ -24,7 +24,7 @@ func AppNew(cfg config.Config) (App, error) {
 }
 
 func (a *app) setDB() error {
-	db , err := postgress.NewConnection(postgress.DBOpt{
+	db, err := postgress.NewConnection(postgress.DBOpt{
 		Host:     a.cfg.Database.Host,
 		Port:     a.cfg.Database.Port,
 		User:     a.cfg.Database.User,
@@ -34,7 +34,7 @@ func (a *app) setDB() error {
 		Schema:   a.cfg.Database.Schema,
 	})
 
-	if err!=nil{
+	if err != nil {
 		return nil
 	}
 
@@ -43,7 +43,16 @@ func (a *app) setDB() error {
 	return nil
 }
 
-func (a *app) bookingServiceWithDB(db *gorm.DB) bookingPort.Service{
+func (a *app) DB() *gorm.DB {
+	return a.db
+}
+
+func (a *app) bookingSerivce() bookingPort.Service {
+
+	return nil
+}
+
+func (a *app) bookingServiceWithDB(db *gorm.DB) bookingPort.Service {
 	return booking.NewService(storage.NewBookinRepo(db))
 }
 
