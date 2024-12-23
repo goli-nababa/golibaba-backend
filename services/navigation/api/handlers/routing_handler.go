@@ -100,7 +100,7 @@ func (h *RoutingHandler) UpdateRoute(c *fiber.Ctx) error {
 	}
 
 	route := &domain.Routing{
-		ID:           uint(id),
+		ID:           domain.RoutingID(uint(id)),
 		Code:         req.Code,
 		FromID:       req.FromID,
 		ToID:         req.ToID,

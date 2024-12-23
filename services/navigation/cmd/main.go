@@ -29,7 +29,7 @@ func main() {
 		log.Fatalf("Failed to read config: %v", err)
 	}
 
-	app, err := app.NewApp(cfg)
+	newApp, err := app.NewApp(cfg)
 	if err != nil {
 		log.Fatalf("Failed to initialize application: %v", err)
 	}
@@ -44,7 +44,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 		fmt.Printf("Starting HTTP server on port %d...\n", cfg.Server.Port)
-		if err := http.Bootstrap(app, cfg); err != nil {
+		if err := http.Bootstrap(newApp, cfg); err != nil {
 			errChan <- fmt.Errorf("HTTP server error: %v", err)
 		}
 	}()
@@ -54,7 +54,7 @@ func main() {
 		defer wg.Done()
 		grpcPort := cfg.Server.Port + 1
 		fmt.Printf("Starting gRPC server on port %d...\n", grpcPort)
-		if err := grpc_server.Bootstrap(app, grpcPort); err != nil {
+		if err := grpc_server.Bootstrap(newApp, grpcPort); err != nil {
 			errChan <- fmt.Errorf("gRPC server error: %v", err)
 		}
 	}()
@@ -68,6 +68,6 @@ func main() {
 
 	log.Println("Shutting down servers...")
 
-	wg.Wait()
+	//wg.Wait()
 	log.Println("All servers stopped")
 }

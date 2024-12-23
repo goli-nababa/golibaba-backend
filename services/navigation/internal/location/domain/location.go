@@ -2,22 +2,22 @@ package domain
 
 import (
 	"errors"
-	"gorm.io/gorm"
 	"navigation_service/internal/common/types"
 	"time"
 )
 
+type LocationID uint
+
 type Location struct {
-	ID        uint               `gorm:"primarykey"`
-	Name      string             `gorm:"type:varchar(255);not null"`
-	Type      types.LocationType `gorm:"type:varchar(50);not null"`
-	Address   string             `gorm:"type:text;not null"`
-	Latitude  float64            `gorm:"type:double precision;not null"`
-	Longitude float64            `gorm:"type:double precision;not null"`
-	Active    bool               `gorm:"default:true"`
+	ID        LocationID
+	Name      string
+	Type      types.LocationType
+	Address   string
+	Latitude  float64
+	Longitude float64
+	Active    bool
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 func NewLocation(name string, locationType types.LocationType, address string, lat, lng float64) (*Location, error) {

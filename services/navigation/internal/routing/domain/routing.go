@@ -3,26 +3,26 @@ package domain
 import (
 	"errors"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 	"navigation_service/internal/common/types"
 	"navigation_service/internal/location/domain"
 	"time"
 )
 
+type RoutingID uint
+
 type Routing struct {
-	ID           uint               `gorm:"primarykey"`
-	UUID         string             `gorm:"type:uuid;unique;not null"`
-	Code         string             `gorm:"unique;not null"`
-	FromID       uint               `gorm:"not null"`
-	ToID         uint               `gorm:"not null"`
-	From         domain.Location    `gorm:"foreignKey:FromID"`
-	To           domain.Location    `gorm:"foreignKey:ToID"`
-	Distance     float64            `gorm:"not null"`
-	VehicleTypes types.VehicleTypes `gorm:"type:jsonb;not null"`
-	Active       bool               `gorm:"default:true"`
+	ID           RoutingID
+	UUID         string
+	Code         string
+	FromID       uint
+	ToID         uint
+	From         domain.Location
+	To           domain.Location
+	Distance     float64
+	VehicleTypes types.VehicleTypes
+	Active       bool
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-	DeletedAt    gorm.DeletedAt `gorm:"index"`
 }
 
 func NewRoute(code string, fromID, toID uint, distance float64, vehicleTypes types.VehicleTypes) (*Routing, error) {

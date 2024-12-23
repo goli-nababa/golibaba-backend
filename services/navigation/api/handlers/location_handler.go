@@ -97,7 +97,7 @@ func (h *LocationHandler) UpdateLocation(c *fiber.Ctx) error {
 	}
 
 	location := &domain.Location{
-		ID:        uint(id),
+		ID:        domain.LocationID(uint(id)),
 		Name:      req.Name,
 		Type:      req.Type,
 		Address:   req.Address,

@@ -85,7 +85,7 @@ func (s *locationServer) GetLocation(ctx context.Context, req *pb.GetLocationReq
 
 func (s *locationServer) UpdateLocation(ctx context.Context, req *pb.UpdateLocationRequest) (*pb.UpdateLocationResponse, error) {
 	location := &domain.Location{
-		ID:        uint(req.Id),
+		ID:        domain.LocationID(uint(req.Id)),
 		Name:      req.Name,
 		Type:      types.LocationType(req.Type.String()),
 		Address:   req.Address,
@@ -187,7 +187,7 @@ func (s *routeServer) GetRoute(ctx context.Context, req *pb.GetRouteRequest) (*p
 
 func (s *routeServer) UpdateRoute(ctx context.Context, req *pb.UpdateRouteRequest) (*pb.UpdateRouteResponse, error) {
 	route := &RoutingDomain.Routing{
-		ID:           uint(req.Id),
+		ID:           RoutingDomain.RoutingID(uint(req.Id)),
 		Code:         req.Code,
 		FromID:       uint(req.FromId),
 		ToID:         uint(req.ToId),

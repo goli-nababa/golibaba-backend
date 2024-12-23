@@ -8,6 +8,8 @@ import (
 	"navigation_service/internal/common/types"
 	"navigation_service/internal/location/domain"
 	"navigation_service/internal/location/port"
+	"navigation_service/pkg/adapters/storage/mapper"
+	storageTypes "navigation_service/pkg/adapters/storage/types"
 )
 
 type locationRepository struct {
@@ -23,11 +25,14 @@ func (r *locationRepository) Create(ctx context.Context, location *domain.Locati
 		return fmt.Errorf("invalid location: %w", err)
 	}
 
-	result := r.db.WithContext(ctx).Create(location)
+	storageLocation := mapper.LocationToStorage(location)
+	result := r.db.WithContext(ctx).Create(storageLocation)
 	if result.Error != nil {
 		return fmt.Errorf("failed to create location: %w", result.Error)
 	}
 
+	// Update domain model with generated ID and timestamps
+	*location = *mapper.LocationFromStorage(storageLocation)
 	return nil
 }
 
@@ -36,15 +41,16 @@ func (r *locationRepository) Update(ctx context.Context, location *domain.Locati
 		return fmt.Errorf("invalid location: %w", err)
 	}
 
-	result := r.db.WithContext(ctx).Model(&domain.Location{}).
+	storageLocation := mapper.LocationToStorage(location)
+	result := r.db.WithContext(ctx).Model(&storageTypes.Location{}).
 		Where("id = ?", location.ID).
 		Updates(map[string]interface{}{
-			"name":      location.Name,
-			"type":      location.Type,
-			"address":   location.Address,
-			"latitude":  location.Latitude,
-			"longitude": location.Longitude,
-			"active":    location.Active,
+			"name":      storageLocation.Name,
+			"type":      storageLocation.Type,
+			"address":   storageLocation.Address,
+			"latitude":  storageLocation.Latitude,
+			"longitude": storageLocation.Longitude,
+			"active":    storageLocation.Active,
 		})
 
 	if result.Error != nil {
@@ -59,7 +65,7 @@ func (r *locationRepository) Update(ctx context.Context, location *domain.Locati
 }
 
 func (r *locationRepository) Delete(ctx context.Context, id uint) error {
-	result := r.db.WithContext(ctx).Delete(&domain.Location{}, id)
+	result := r.db.WithContext(ctx).Delete(&storageTypes.Location{}, id)
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete location: %w", result.Error)
 	}
@@ -72,7 +78,7 @@ func (r *locationRepository) Delete(ctx context.Context, id uint) error {
 }
 
 func (r *locationRepository) GetByID(ctx context.Context, id uint) (*domain.Location, error) {
-	var location domain.Location
+	var location storageTypes.Location
 
 	result := r.db.WithContext(ctx).First(&location, id)
 	if result.Error != nil {
@@ -82,11 +88,11 @@ func (r *locationRepository) GetByID(ctx context.Context, id uint) (*domain.Loca
 		return nil, fmt.Errorf("failed to get location: %w", result.Error)
 	}
 
-	return &location, nil
+	return mapper.LocationFromStorage(&location), nil
 }
 
 func (r *locationRepository) GetByType(ctx context.Context, locationType types.LocationType) ([]domain.Location, error) {
-	var locations []domain.Location
+	var locations []storageTypes.Location
 
 	result := r.db.WithContext(ctx).
 		Where("type = ? AND active = true", locationType).
@@ -96,11 +102,11 @@ func (r *locationRepository) GetByType(ctx context.Context, locationType types.L
 		return nil, fmt.Errorf("failed to get locations by type: %w", result.Error)
 	}
 
-	return locations, nil
+	return mapper.LocationsFromStorage(locations), nil
 }
 
 func (r *locationRepository) List(ctx context.Context, activeOnly bool) ([]domain.Location, error) {
-	var locations []domain.Location
+	var locations []storageTypes.Location
 	query := r.db.WithContext(ctx)
 
 	if activeOnly {
@@ -112,5 +118,5 @@ func (r *locationRepository) List(ctx context.Context, activeOnly bool) ([]domai
 		return nil, fmt.Errorf("failed to list locations: %w", result.Error)
 	}
 
-	return locations, nil
+	return mapper.LocationsFromStorage(locations), nil
 }

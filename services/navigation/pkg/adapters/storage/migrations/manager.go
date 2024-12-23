@@ -3,8 +3,7 @@ package migrations
 import (
 	"fmt"
 	"gorm.io/gorm"
-	"navigation_service/internal/location/domain"
-	routeDomain "navigation_service/internal/routing/domain"
+	"navigation_service/pkg/adapters/storage/types"
 )
 
 type Manager struct {
@@ -22,7 +21,7 @@ func (m *Manager) RunMigrations() error {
 	}
 
 	// Run migrations
-	if err := m.db.AutoMigrate(&domain.Location{}, &routeDomain.Routing{}); err != nil {
+	if err := m.db.AutoMigrate(&types.Location{}, &types.Route{}); err != nil {
 		return fmt.Errorf("failed to migrate database: %w", err)
 	}
 
@@ -59,7 +58,6 @@ func (m *Manager) createIndexes() error {
 
 	// Route indexes
 	if err := m.db.Exec(`
-        CREATE INDEX IF NOT EXISTS idx_routes_vehicle_types ON routings USING GIN (vehicle_types);
         CREATE INDEX IF NOT EXISTS idx_routes_active ON routings(active) WHERE active = true;
         CREATE INDEX IF NOT EXISTS idx_routes_locations ON routings(from_id, to_id);
     `).Error; err != nil {

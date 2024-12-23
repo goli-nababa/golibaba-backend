@@ -8,6 +8,8 @@ import (
 	"navigation_service/internal/common/types"
 	"navigation_service/internal/routing/domain"
 	"navigation_service/internal/routing/port"
+	"navigation_service/pkg/adapters/storage/mapper"
+	storageTypes "navigation_service/pkg/adapters/storage/types"
 )
 
 type routingRepository struct {
@@ -23,11 +25,14 @@ func (r *routingRepository) Create(ctx context.Context, route *domain.Routing) e
 		return fmt.Errorf("invalid route: %w", err)
 	}
 
-	result := r.db.WithContext(ctx).Create(route)
+	storageRoute := mapper.RouteToStorage(route)
+	result := r.db.WithContext(ctx).Create(storageRoute)
 	if result.Error != nil {
 		return fmt.Errorf("failed to create route: %w", result.Error)
 	}
 
+	// Update domain model with generated ID and timestamps
+	*route = *mapper.RouteFromStorage(storageRoute)
 	return nil
 }
 
@@ -36,15 +41,16 @@ func (r *routingRepository) Update(ctx context.Context, route *domain.Routing) e
 		return fmt.Errorf("invalid route: %w", err)
 	}
 
-	result := r.db.WithContext(ctx).Model(&domain.Routing{}).
+	storageRoute := mapper.RouteToStorage(route)
+	result := r.db.WithContext(ctx).Model(&storageTypes.Route{}).
 		Where("id = ?", route.ID).
 		Updates(map[string]interface{}{
-			"code":          route.Code,
-			"from_id":       route.FromID,
-			"to_id":         route.ToID,
-			"distance":      route.Distance,
-			"vehicle_types": route.VehicleTypes,
-			"active":        route.Active,
+			"code":          storageRoute.Code,
+			"from_id":       storageRoute.FromID,
+			"to_id":         storageRoute.ToID,
+			"distance":      storageRoute.Distance,
+			"vehicle_types": storageRoute.VehicleTypes,
+			"active":        storageRoute.Active,
 		})
 
 	if result.Error != nil {
@@ -59,7 +65,7 @@ func (r *routingRepository) Update(ctx context.Context, route *domain.Routing) e
 }
 
 func (r *routingRepository) Delete(ctx context.Context, id uint) error {
-	result := r.db.WithContext(ctx).Delete(&domain.Routing{}, id)
+	result := r.db.WithContext(ctx).Delete(&storageTypes.Route{}, id)
 	if result.Error != nil {
 		return fmt.Errorf("failed to delete route: %w", result.Error)
 	}
@@ -72,7 +78,7 @@ func (r *routingRepository) Delete(ctx context.Context, id uint) error {
 }
 
 func (r *routingRepository) GetByID(ctx context.Context, id uint) (*domain.Routing, error) {
-	var route domain.Routing
+	var route storageTypes.Route
 
 	result := r.db.WithContext(ctx).
 		Preload("From").
@@ -86,11 +92,11 @@ func (r *routingRepository) GetByID(ctx context.Context, id uint) (*domain.Routi
 		return nil, fmt.Errorf("failed to get route: %w", result.Error)
 	}
 
-	return &route, nil
+	return mapper.RouteFromStorage(&route), nil
 }
 
 func (r *routingRepository) GetByUUID(ctx context.Context, uuid string) (*domain.Routing, error) {
-	var route domain.Routing
+	var route storageTypes.Route
 
 	result := r.db.WithContext(ctx).
 		Preload("From").
@@ -105,11 +111,11 @@ func (r *routingRepository) GetByUUID(ctx context.Context, uuid string) (*domain
 		return nil, fmt.Errorf("failed to get route by UUID: %w", result.Error)
 	}
 
-	return &route, nil
+	return mapper.RouteFromStorage(&route), nil
 }
 
 func (r *routingRepository) GetByCode(ctx context.Context, code string) (*domain.Routing, error) {
-	var route domain.Routing
+	var route storageTypes.Route
 
 	result := r.db.WithContext(ctx).
 		Preload("From").
@@ -124,7 +130,7 @@ func (r *routingRepository) GetByCode(ctx context.Context, code string) (*domain
 		return nil, fmt.Errorf("failed to get route by code: %w", result.Error)
 	}
 
-	return &route, nil
+	return mapper.RouteFromStorage(&route), nil
 }
 
 func (r *routingRepository) FindRoutes(ctx context.Context, filter domain.RouteFilter) ([]domain.Routing, error) {
@@ -132,6 +138,7 @@ func (r *routingRepository) FindRoutes(ctx context.Context, filter domain.RouteF
 		return nil, fmt.Errorf("invalid filter: %w", err)
 	}
 
+	var routes []storageTypes.Route
 	query := r.db.WithContext(ctx).
 		Preload("From").
 		Preload("To").
@@ -154,22 +161,20 @@ func (r *routingRepository) FindRoutes(ctx context.Context, filter domain.RouteF
 		query = query.Where("active = true")
 	}
 
-	var routes []domain.Routing
 	result := query.Find(&routes)
 	if result.Error != nil {
 		return nil, fmt.Errorf("failed to find routes: %w", result.Error)
 	}
 
-	return routes, nil
+	return mapper.RoutesFromStorage(routes), nil
 }
 
 func (r *routingRepository) GetStatistics(ctx context.Context, filter domain.StatisticsFilter) (*domain.RouteStatistics, error) {
-	db := r.db.WithContext(ctx)
 	stats := &domain.RouteStatistics{
 		RoutesByVehicleType: make(map[string]int),
 	}
 
-	baseQuery := db.Model(&domain.Routing{}).Where("deleted_at IS NULL")
+	baseQuery := r.db.WithContext(ctx).Model(&storageTypes.Route{}).Where("deleted_at IS NULL")
 	if !filter.StartTime.IsZero() {
 		baseQuery = baseQuery.Where("created_at >= ?", filter.StartTime)
 	}
@@ -191,11 +196,7 @@ func (r *routingRepository) GetStatistics(ctx context.Context, filter domain.Sta
 	}
 	stats.TotalDistance = totalDistance.Total
 
-	var routes []struct {
-		ID           uint
-		VehicleTypes types.VehicleTypes `gorm:"type:vehicle_type[]"`
-	}
-
+	var routes []storageTypes.Route
 	if err := baseQuery.Find(&routes).Error; err != nil {
 		return nil, fmt.Errorf("failed to fetch routes for vehicle type stats: %w", err)
 	}
@@ -203,91 +204,10 @@ func (r *routingRepository) GetStatistics(ctx context.Context, filter domain.Sta
 	vehicleTypeCounts := make(map[string]int)
 	for _, route := range routes {
 		for _, vType := range route.VehicleTypes {
-			vehicleTypeCounts[string(vType)]++
+			vehicleTypeCounts[vType]++
 		}
 	}
 	stats.RoutesByVehicleType = vehicleTypeCounts
-
-	type PopularRouteResult struct {
-		RouteID       uint
-		UsageCount    int
-		AverageRating float64
-	}
-	var popularRoutes []PopularRouteResult
-
-	popularRoutesQuery := db.Table("routings").
-		Select(`
-            routings.id as route_id,
-            COUNT(route_usages.id) as usage_count,
-            COALESCE(AVG(NULLIF(route_usages.rating, 0)), 0) as average_rating
-        `).
-		Joins("LEFT JOIN route_usages ON routings.id = route_usages.route_id").
-		Where("routings.deleted_at IS NULL")
-
-	if !filter.StartTime.IsZero() {
-		popularRoutesQuery = popularRoutesQuery.Where("route_usages.used_at >= ?", filter.StartTime)
-	}
-	if !filter.EndTime.IsZero() {
-		popularRoutesQuery = popularRoutesQuery.Where("route_usages.used_at <= ?", filter.EndTime)
-	}
-
-	if err := popularRoutesQuery.
-		Group("routings.id").
-		Order("usage_count DESC, average_rating DESC").
-		Limit(10).
-		Scan(&popularRoutes).Error; err != nil {
-		return nil, fmt.Errorf("failed to get popular routes: %w", err)
-	}
-
-	stats.PopularRoutes = make([]domain.PopularRoute, len(popularRoutes))
-	for i, pr := range popularRoutes {
-		var route domain.Routing
-		if err := db.Preload("From").
-			Preload("To").
-			First(&route, pr.RouteID).Error; err != nil {
-			return nil, fmt.Errorf("failed to get route details for ID %d: %w", pr.RouteID, err)
-		}
-
-		stats.PopularRoutes[i] = domain.PopularRoute{
-			Route:         &route,
-			UsageCount:    pr.UsageCount,
-			AverageRating: pr.AverageRating,
-		}
-	}
-
-	if filter.VehicleType != "" {
-		filteredStats := &domain.RouteStatistics{
-			RoutesByVehicleType: map[string]int{
-				string(filter.VehicleType): stats.RoutesByVehicleType[string(filter.VehicleType)],
-			},
-		}
-
-		var vehicleTypeStats struct {
-			Count    int64
-			Distance float64
-		}
-
-		vehicleTypeQuery := baseQuery.
-			Where("? = ANY(vehicle_types)", filter.VehicleType).
-			Select("COUNT(*) as count, COALESCE(SUM(distance), 0) as distance")
-
-		if err := vehicleTypeQuery.Scan(&vehicleTypeStats).Error; err != nil {
-			return nil, fmt.Errorf("failed to get vehicle type specific stats: %w", err)
-		}
-
-		filteredStats.TotalRoutes = int(vehicleTypeStats.Count)
-		filteredStats.TotalDistance = vehicleTypeStats.Distance
-
-		var filteredPopularRoutes []domain.PopularRoute
-		for _, pr := range stats.PopularRoutes {
-			if pr.Route.SupportsVehicleType(filter.VehicleType) {
-				filteredPopularRoutes = append(filteredPopularRoutes, pr)
-			}
-		}
-		filteredStats.PopularRoutes = filteredPopularRoutes
-
-		return filteredStats, nil
-	}
 
 	return stats, nil
 }
