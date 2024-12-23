@@ -9,7 +9,7 @@ import (
 type Repo interface {
 	Create(ctx context.Context, company domain.Company) (*domain.Company, error)
 	Update(ctx context.Context, id domain.CompanyId, companyDomain domain.Company) (*domain.Company, error)
-	GetByID(ctx context.Context, id domain.CompanyId) (*domain.Company, error)
+	GetByID(ctx context.Context, id domain.CompanyId, preloads ...string) (*domain.Company, error)
 	Delete(ctx context.Context, id domain.CompanyId) error
 	Get(ctx context.Context, request *commonDomain.RepositoryRequest) ([]domain.Company, error)
 

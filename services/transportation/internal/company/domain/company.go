@@ -9,6 +9,7 @@ type (
 	CompanyId             uint
 	TechnicalTeamId       uint
 	TechnicalTeamMemberId uint
+	MemberId              uint
 )
 
 type Company struct {
@@ -21,6 +22,11 @@ type Company struct {
 	TransportationTypeId transportationDomain.TransportationTypeId `json:"transportation_type_id"`
 	TransportationType   transportationDomain.TransportationType   `json:"transportation_type"`
 	TechnicalTeams       []TechnicalTeam                           `json:"technical_teams"`
+}
+
+type CompanyFilter struct {
+	OwnerId              uint
+	TransportationTypeId transportationDomain.TransportationTypeId
 }
 
 type TechnicalTeam struct {
@@ -40,6 +46,6 @@ type TechnicalTeamMember struct {
 	UpdatedAt       time.Time             `json:"updated_at"`
 	DeletedAt       *time.Time            `json:"deleted_at,omitempty"`
 	TechnicalTeamId TechnicalTeamId       `json:"technical_team_id"`
-	MemberId        uint                  `json:"member_id"`
+	MemberId        MemberId              `json:"member_id"`
 	TechnicalTeam   TechnicalTeam         `json:"technical_team"`
 }

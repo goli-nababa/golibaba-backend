@@ -53,8 +53,8 @@ func (r *companyRepo) Update(ctx context.Context, id domain.CompanyId, companyDo
 	return domain, nil
 }
 
-func (r *companyRepo) GetByID(ctx context.Context, id domain.CompanyId) (*domain.Company, error) {
-	company, err := GetRecordByID[types.Company](r.db, id, nil)
+func (r *companyRepo) GetByID(ctx context.Context, id domain.CompanyId, preloads ...string) (*domain.Company, error) {
+	company, err := GetRecordByID[types.Company](r.db, id, preloads)
 	if err != nil {
 		return nil, err
 	}

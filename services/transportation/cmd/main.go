@@ -13,6 +13,7 @@ func main() {
 	if path == "" {
 		path = "../config.json"
 	}
+
 	cfg := config.MustReadConfig(path)
 
 	appContainer := app.NewMustApp(cfg)

@@ -6,6 +6,8 @@ import (
 	"transportation/internal/company"
 	companyPort "transportation/internal/company/port"
 	"transportation/pkg/adapters/storage"
+	"transportation/pkg/adapters/storage/migrations"
+	"transportation/pkg/logging"
 	"transportation/pkg/postgres"
 
 	appCtx "transportation/pkg/context"
@@ -16,6 +18,7 @@ import (
 type app struct {
 	db             *gorm.DB
 	cfg            config.Config
+	logger         logging.Logger
 	companyService companyPort.Service
 }
 
@@ -37,19 +40,24 @@ func (a *app) setDB() error {
 	return nil
 }
 func (a *app) companyServiceWithDB(db *gorm.DB) companyPort.Service {
-	return company.NewService(storage.NewCompanyRepo(db))
+	return company.NewService(storage.NewCompanyRepo(db), a.logger)
 }
 
 func NewApp(cfg config.Config) (App, error) {
+
+	logger := logging.NewLogger(&cfg)
 	a := &app{
-		cfg: cfg,
+		cfg:    cfg,
+		logger: logger,
 	}
 
 	if err := a.setDB(); err != nil {
 		return nil, err
 	}
 
-	return a, nil
+	err := migrations.AutoMigrate(a.db)
+
+	return a, err
 }
 func (a *app) DB() *gorm.DB {
 	return a.db
