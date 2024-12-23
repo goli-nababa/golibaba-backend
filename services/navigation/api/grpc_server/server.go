@@ -150,6 +150,16 @@ func (s *routeServer) CreateRoute(ctx context.Context, req *pb.CreateRouteReques
 		VehicleTypes: convertToVehicleTypes(req.VehicleTypes),
 		Active:       true,
 	}
+	route, err := RoutingDomain.NewRoute(
+		req.Code,
+		uint(req.FromId),
+		uint(req.ToId), 0,
+		convertToVehicleTypes(req.VehicleTypes),
+	)
+
+	if err != nil {
+		return nil, err
+	}
 
 	if err := s.app.RoutingService(ctx).CreateRouting(ctx, route); err != nil {
 		return nil, err
@@ -294,7 +304,72 @@ func (s *routeServer) GetAvailableRoutes(ctx context.Context, req *pb.GetAvailab
 		TotalCount: int32(len(routes)),
 	}, err
 }
+func (s *routeServer) GetOptimalRoutes(req *pb.GetOptimalRoutesRequest, stream pb.RouteService_GetOptimalRoutesServer) error {
+	allowedVehicleTypes := convertToVehicleTypes(req.AllowedVehicleTypes)
+	routes, err := s.app.RoutingService(stream.Context()).FindOptimalRoutes(
+		stream.Context(),
+		req.FromId,
+		req.ToId,
+		allowedVehicleTypes,
+	)
+	if err != nil {
+		return err
+	}
 
+	for _, route := range routes {
+		if int32(len(routes)) > req.MaxAlternatives {
+			break
+		}
+
+		err := stream.Send(&pb.OptimalRouteResponse{
+			Route:                convertToProtoRoute(route.Route),
+			EfficiencyScore:      route.EfficiencyScore,
+			OptimizationCriteria: route.Criteria,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *routeServer) GetRouteStatistics(ctx context.Context, req *pb.GetRouteStatisticsRequest) (*pb.GetRouteStatisticsResponse, error) {
+	filter := RoutingDomain.StatisticsFilter{
+		StartTime:   req.StartTime.AsTime(),
+		EndTime:     req.EndTime.AsTime(),
+		VehicleType: types.VehicleType(req.VehicleType.String()),
+	}
+
+	stats, err := s.app.RoutingService(ctx).GetRouteStatistics(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert map[string]int to map[string]int32
+	routesByVehicleType := make(map[string]int32)
+	for k, v := range stats.RoutesByVehicleType {
+		routesByVehicleType[k] = int32(v)
+	}
+
+	return &pb.GetRouteStatisticsResponse{
+		TotalRoutes:         int32(stats.TotalRoutes),
+		TotalDistance:       stats.TotalDistance,
+		RoutesByVehicleType: routesByVehicleType,
+		MostPopularRoutes:   convertPopularRoutesToProto(stats.PopularRoutes),
+	}, nil
+}
+func convertPopularRoutesToProto(routes []RoutingDomain.PopularRoute) []*pb.PopularRoute {
+	protoRoutes := make([]*pb.PopularRoute, len(routes))
+	for i, route := range routes {
+		protoRoutes[i] = &pb.PopularRoute{
+			Route:         convertToProtoRoute(route.Route),
+			UsageCount:    int32(route.UsageCount),
+			AverageRating: route.AverageRating,
+		}
+	}
+	return protoRoutes
+}
 func convertToProtoRoute(route *RoutingDomain.Routing) *pb.Route {
 	return &pb.Route{
 		Id:           uint64(route.ID),
