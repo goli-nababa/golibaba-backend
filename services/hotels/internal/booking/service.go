@@ -40,8 +40,18 @@ func (s *service) CreateNewBooking(ctx context.Context, booking domain.Booking) 
 	}
 	return bookingID, err
 }
-func (s *service) FindBooking(ctx context.Context, filters domain.BookingFilterItem) ([]domain.Booking, error) {
-	return s.repo.Find(ctx, filters)
+
+func (s *service) GetBookingByID(ctx context.Context, UUID domain.BookingID) (*domain.Booking, error) {
+
+	return s.repo.GetByID(ctx, UUID)
+}
+
+func (s *service) GetAllBooking(ctx context.Context, pageIndex, pageSize uint) ([]domain.Booking, error) {
+	return s.repo.Get(ctx, domain.BookingFilterItem{}, pageIndex, pageSize)
+}
+
+func (s *service) FindBooking(ctx context.Context, filters domain.BookingFilterItem, pageIndex, pageSize uint) ([]domain.Booking, error) {
+	return s.repo.Get(ctx, filters, pageIndex, pageSize)
 }
 func (s *service) EditeBooking(ctx context.Context, bookingID domain.BookingID, newBook domain.Booking) error {
 	err := newBook.Validate()

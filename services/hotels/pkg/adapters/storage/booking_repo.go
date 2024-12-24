@@ -4,10 +4,10 @@ import (
 	"context"
 	"hotels-service/internal/booking/domain"
 	bookinPort "hotels-service/internal/booking/port"
-	"hotels-service/pkg/adapters/storage/mapper"
 	"hotels-service/pkg/adapters/storage/types"
 
-	"github.com/google/uuid"
+	"github.com/jinzhu/copier"
+
 	"gorm.io/gorm"
 )
 
@@ -23,29 +23,39 @@ func NewBookinRepo(db *gorm.DB) bookinPort.Repo {
 
 func (br *bookingRepo) Create(ctx context.Context, booking domain.Booking) (domain.BookingID, error) {
 	bookingType := new(types.Booking)
-
-	if err := mapper.ConvertTypes(booking, bookingType); err != nil {
-		return uuid.Nil, err
-	}
-
+	copier.Copy(bookingType, &booking)
 	result := br.db.Create(bookingType)
 	return booking.ID, result.Error
 }
 
 func (br *bookingRepo) Delete(ctx context.Context, UUID domain.BookingID) error {
-	bookingType := new(types.Booking)
-	result := br.db.Delete(&bookingType, UUID)
+	booking := new(types.Booking)
+	result := br.db.Delete(&booking, UUID.String())
 	return result.Error
 }
-func (br *bookingRepo) Find(ctx context.Context, filter domain.BookingFilterItem) ([]domain.Booking, error) {
-	// var bookingType []types.Booking
-	// result := br.db.Where(&filter).Find(&bookingType)
-	// return bookinType , result.Error
-	panic("v any")
+func (br *bookingRepo) Get(ctx context.Context, filter domain.BookingFilterItem, pageIndex uint, pageSize uint) ([]domain.Booking, error) {
+	var result *gorm.DB
+	domainBookings := new([]domain.Booking)
+	booking := new([]types.Booking)
+	offset := (pageIndex - 1) * pageSize
+	if (domain.BookingFilterItem{}) == filter {
+		result = br.db.Limit(int(pageSize)).Offset(int(offset)).Find(booking)
+	} else {
+		result = br.db.Limit(int(pageSize)).Offset(int(offset)).Where(&filter).Find(booking)
+	}
+	copier.Copy(domainBookings, booking)
+	return *domainBookings, result.Error
 }
 func (br *bookingRepo) GetByID(ctx context.Context, UUID domain.BookingID) (*domain.Booking, error) {
-	panic("v any")
+	booking := new(types.Booking)
+	domainBooking := new(domain.Booking)
+	result := br.db.First(&booking, UUID.String())
+	copier.Copy(domainBooking, booking)
+	return domainBooking, result.Error
 }
 func (br *bookingRepo) Update(ctx context.Context, UUID domain.BookingID, newData domain.Booking) error {
-	panic("v any")
+	booking := new(types.Booking)
+	copier.Copy(booking, &newData)
+	result := br.db.Model(&booking).Where("id = ?", UUID.String()).Updates(booking)
+	return result.Error
 }
