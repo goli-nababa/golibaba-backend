@@ -11,6 +11,7 @@ require google.golang.org/protobuf v1.36.0 // indirect
 
 require (
 	github.com/goli-nababa/golibaba-backend/proto/pb v0.0.0
+	github.com/goli-nababa/golibaba-backend/common v0.0.0
 	golang.org/x/net v0.30.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/text v0.19.0 // indirect
@@ -18,3 +19,4 @@ require (
 )
 
 replace github.com/goli-nababa/golibaba-backend/proto/pb => ../../proto/pb
+replace github.com/goli-nababa/golibaba-backend/common => ../../common

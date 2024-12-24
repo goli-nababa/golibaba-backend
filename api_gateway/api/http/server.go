@@ -1,6 +1,8 @@
 package http
 
 import (
+	"api_gateway/api/http/helpers"
+	"api_gateway/api/http/types"
 	"api_gateway/config"
 	"encoding/json"
 	"fmt"
@@ -22,6 +24,13 @@ func Bootstrap(appContainer di.App, cfg config.ServerConfig) error {
 
 func RegisterServices(appContainer di.App, cfg config.ServerConfig) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		return c.SendString("Hello World")
+		body := new(types.RegisterRequest)
+
+		if err := helpers.ParseRequestBody(c, body); err != nil {
+			fmt.Printf("%v\n", body)
+			return c.Status(fiber.StatusBadRequest).JSON(err)
+		}
+
+		return c.Status(fiber.StatusOK).JSON(body)
 	}
 }
