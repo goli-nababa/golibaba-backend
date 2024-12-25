@@ -3,7 +3,7 @@ package storage
 import (
 	"context"
 	"hotels-service/internal/booking/domain"
-	bookinPort "hotels-service/internal/booking/port"
+	bookingPort "hotels-service/internal/booking/port"
 	"hotels-service/pkg/adapters/storage/types"
 
 	"github.com/jinzhu/copier"
@@ -15,7 +15,7 @@ type bookingRepo struct {
 	db *gorm.DB
 }
 
-func NewBookinRepo(db *gorm.DB) bookinPort.Repo {
+func NewBookinRepo(db *gorm.DB) bookingPort.Repo {
 	return &bookingRepo{
 		db: db,
 	}
@@ -33,15 +33,15 @@ func (br *bookingRepo) Delete(ctx context.Context, UUID domain.BookingID) error 
 	result := br.db.Delete(&booking, UUID.String())
 	return result.Error
 }
-func (br *bookingRepo) Get(ctx context.Context, filter domain.BookingFilterItem, pageIndex uint, pageSize uint) ([]domain.Booking, error) {
+func (br *bookingRepo) Get(ctx context.Context, pageIndex uint, pageSize uint, filters ...domain.BookingFilterItem) ([]domain.Booking, error) {
 	var result *gorm.DB
 	domainBookings := new([]domain.Booking)
 	booking := new([]types.Booking)
 	offset := (pageIndex - 1) * pageSize
-	if (domain.BookingFilterItem{}) == filter {
-		result = br.db.Limit(int(pageSize)).Offset(int(offset)).Find(booking)
+	if len(filters) > 0 {
+		result = br.db.Limit(int(pageSize)).Offset(int(offset)).Where(&filters).Find(booking)
 	} else {
-		result = br.db.Limit(int(pageSize)).Offset(int(offset)).Where(&filter).Find(booking)
+		result = br.db.Limit(int(pageSize)).Offset(int(offset)).Find(booking)
 	}
 	copier.Copy(domainBookings, booking)
 	return *domainBookings, result.Error
