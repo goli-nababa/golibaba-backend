@@ -19,52 +19,52 @@ var (
 
 type HotelID = uuid.UUID
 type Hotel struct {
-	ID         HotelID
-	Name       string
-	Address    string
-	Rating     uint
-	Amentities []string
-	OwnerID    userDomain.UserID
-	CreatedAt  time.Time
-	DeletedAt  time.Time
+	ID        HotelID
+	Name      string
+	Address   string
+	Rating    uint
+	Amenities []string
+	OwnerID   userDomain.UserID
+	CreatedAt time.Time
+	DeletedAt time.Time
 }
 
 type HotelFilterItem struct {
-	Name       string
-	Address    string
-	Rating     string
-	Amentities []string
+	Name      string
+	Address   string
+	Rating    string
+	Amenities []string
 }
 
 func ValidateID(ID uuid.UUID) error {
-	if ID == uuid.Nil {
+	if err := uuid.Validate(ID.String()); err != nil {
 		return ErrInvalidHotelID
 	}
 	return nil
 }
 
-func ValidateName(name string) error {
+func validateName(name string) error {
 	if name == "" {
 		return ErrInvalidHotelName
 	}
 	return nil
 }
 
-func ValidateAddress(address string) error {
+func validateAddress(address string) error {
 	if address == "" {
 		return ErrInvalidHotelAddress
 	}
 	return nil
 }
 
-func ValidateRating(rating uint) error {
+func validateRating(rating uint) error {
 	if rating <= 0 {
 		return ErrInvalidHotelRating
 	}
 	return nil
 }
 
-func ValidateOwnerID(ownerID userDomain.UserID) error {
+func validateOwnerID(ownerID userDomain.UserID) error {
 	if ownerID == uuid.Nil {
 		return ErrInvalidHotelOwnerID
 	}
@@ -76,19 +76,19 @@ func (h *Hotel) Validate() error {
 		return err
 	}
 
-	if err := ValidateName(h.Name); err != nil {
+	if err := validateName(h.Name); err != nil {
 		return err
 	}
 
-	if err := ValidateAddress(h.Address); err != nil {
+	if err := validateAddress(h.Address); err != nil {
 		return err
 	}
 
-	if err := ValidateRating(h.Rating); err != nil {
+	if err := validateRating(h.Rating); err != nil {
 		return err
 	}
 
-	if err := ValidateOwnerID(h.OwnerID); err != nil {
+	if err := validateOwnerID(h.OwnerID); err != nil {
 		return err
 	}
 
