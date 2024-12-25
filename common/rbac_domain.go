@@ -7,3 +7,7 @@ const (
 	StatementActionAllow TypeStatementAction = iota + 1
 	StatementActionDeny
 )
+
+var RbacAdminPermissions = []string{
+	"user_service:login",
+}
