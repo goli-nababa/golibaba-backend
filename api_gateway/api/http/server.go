@@ -20,7 +20,7 @@ func Bootstrap(appContainer di.App, cfg config.ServerConfig) error {
 		JSONDecoder: json.Unmarshal,
 	})
 
-	app.Post("/register", RegisterServices(appContainer, cfg))
+	app.Post("/v1/register", RegisterServices(appContainer, cfg))
 
 	return app.Listen(fmt.Sprintf(":%d", cfg.Port))
 }

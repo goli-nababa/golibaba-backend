@@ -5,7 +5,6 @@ go 1.23.3
 require (
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/gofiber/fiber/v2 v2.52.5
-	github.com/goli-nababa/golibaba-backend/common v0.0.0
 	github.com/goli-nababa/golibaba-backend/modules/cache v0.0.0-00010101000000-000000000000
 )
 
