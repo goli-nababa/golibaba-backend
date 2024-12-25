@@ -4,7 +4,7 @@
     "service_ttl": 0
   },
   "redis": {
-    "host": "golibaba-redis",
+    "host": "golibaba-gateway-redis",
     "port": 6379
   }
 }
