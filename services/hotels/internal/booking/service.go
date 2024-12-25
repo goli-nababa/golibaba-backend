@@ -47,11 +47,11 @@ func (s *service) GetBookingByID(ctx context.Context, UUID domain.BookingID) (*d
 }
 
 func (s *service) GetAllBooking(ctx context.Context, pageIndex, pageSize uint) ([]domain.Booking, error) {
-	return s.repo.Get(ctx, domain.BookingFilterItem{}, pageIndex, pageSize)
+	return s.repo.Get(ctx, pageIndex, pageSize)
 }
 
 func (s *service) FindBooking(ctx context.Context, filters domain.BookingFilterItem, pageIndex, pageSize uint) ([]domain.Booking, error) {
-	return s.repo.Get(ctx, filters, pageIndex, pageSize)
+	return s.repo.Get(ctx, pageIndex, pageSize, filters)
 }
 func (s *service) EditeBooking(ctx context.Context, bookingID domain.BookingID, newBook domain.Booking) error {
 	err := newBook.Validate()

@@ -50,22 +50,22 @@ type BookingFilterItem struct {
 	Status       StatusType
 }
 
-func validateID(ID BookingID) error {
-	if ID == uuid.Nil {
+func ValidateID(ID BookingID) error {
+	if err := uuid.Validate(ID.String()); err != nil {
 		return ErrBookingIDRequired
 	}
 	return nil
 }
 
 func validateUserID(userID userDomain.UserID) error {
-	if userID == uuid.Nil {
+	if err := uuid.Validate(userID.String()); err != nil {
 		return ErrBookingUserIDRequired
 	}
 	return nil
 }
 
 func validateRoomID(roomID roomDomain.RoomID) error {
-	if roomID == uuid.Nil {
+	if err := uuid.Validate(roomID.String()); err != nil {
 		return ErrBookingRoomIDRequired
 	}
 	return nil
@@ -99,7 +99,7 @@ func validateStatus(status StatusType) error {
 }
 
 func (b *Booking) Validate() error {
-	if err := validateID(b.ID); err != nil {
+	if err := ValidateID(b.ID); err != nil {
 		return err
 	}
 	if err := validateUserID(b.UserID); err != nil {
