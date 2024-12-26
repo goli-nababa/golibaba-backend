@@ -9,7 +9,7 @@ import (
 type Repo interface {
 	Create(ctx context.Context, TripDomain domain.Trip) (*domain.Trip, error)
 	Update(ctx context.Context, id domain.TripId, TripDomain domain.Trip) (*domain.Trip, error)
-	GetByID(ctx context.Context, id domain.TripId) (*domain.Trip, error)
+	GetByID(ctx context.Context, id domain.TripId, preloads ...string) (*domain.Trip, error)
 	Delete(ctx context.Context, id domain.TripId) error
 	Get(ctx context.Context, request *commonDomain.RepositoryRequest) ([]domain.Trip, error)
 

@@ -54,8 +54,8 @@ func (r *TripRepo) Update(ctx context.Context, id domain.TripId, TripDomain doma
 	return domain, nil
 }
 
-func (r *TripRepo) GetByID(ctx context.Context, id domain.TripId) (*domain.Trip, error) {
-	Trip, err := GetRecordByID[types.Trip](r.db, id, nil)
+func (r *TripRepo) GetByID(ctx context.Context, id domain.TripId, preloads ...string) (*domain.Trip, error) {
+	Trip, err := GetRecordByID[types.Trip](r.db, id, preloads)
 	if err != nil {
 		return nil, err
 	}

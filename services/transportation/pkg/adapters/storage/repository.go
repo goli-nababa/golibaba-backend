@@ -39,6 +39,8 @@ func GetRecords[T any](db *gorm.DB, request *domain.RepositoryRequest) ([]T, err
 			query = query.Where(filter.Field+" <= ?", filter.Value)
 		case "LIKE":
 			query = query.Where(filter.Field+" LIKE ?", "%"+filter.Value+"%")
+		case "IS":
+			query = query.Where(filter.Field + " IS " + filter.Value)
 		default:
 			return nil, errors.New("unsupported filter operator: " + filter.Operator)
 		}

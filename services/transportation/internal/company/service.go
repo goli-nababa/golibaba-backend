@@ -106,3 +106,25 @@ func (s *service) AddMembersToTechnicalTeam(ctx context.Context, teamId domain.T
 func (s *service) RemoveMembersFromTechnicalTeam(ctx context.Context, teamId domain.TechnicalTeamId, technicalTeamMemberId domain.TechnicalTeamMemberId) error {
 	return s.repo.DeleteTechnicalTeamMember(ctx, technicalTeamMemberId)
 }
+
+func (s *service) GetTechnicalTeamMembers(ctx context.Context, filters domain.TechnicalTeamMemberFilter) ([]domain.TechnicalTeamMember, error) {
+	rFilters := []*commonDomain.RepositoryFilter{}
+
+	if filters.MemberId > 0 {
+		rFilters = append(rFilters,
+			&commonDomain.RepositoryFilter{Field: "member_id", Operator: "=", Value: strconv.Itoa(int(filters.MemberId))})
+	}
+
+	if filters.TechnicalTeamId > 0 {
+		rFilters = append(rFilters,
+			&commonDomain.RepositoryFilter{Field: "technical_team_id", Operator: "=", Value: strconv.Itoa(int(filters.TechnicalTeamId))})
+	}
+	teamMembers, err := s.repo.GetTechnicalTeamMembers(ctx,
+		&commonDomain.RepositoryRequest{Filters: rFilters, Preloads: []string{"TechnicalTeam"}})
+	if err != nil {
+		s.logger.Error(logging.Internal, logging.FailedToGetCompanies, "error in GetTechnicalTeamMembers company", map[logging.ExtraKey]interface{}{logging.ErrorMessage: err.Error()})
+		return []domain.TechnicalTeamMember{}, err
+	}
+
+	return teamMembers, nil
+}

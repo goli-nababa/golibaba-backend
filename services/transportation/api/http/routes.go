@@ -15,3 +15,17 @@ func registerCompanyRoutes(serverGroup *echo.Group, appContainer app.App, cfg co
 
 	//....
 }
+
+func registerTripRoutes(serverGroup *echo.Group, appContainer app.App, cfg config.ServerConfig) {
+	s := tripServiceGetter(appContainer, cfg)
+	g := serverGroup.Group("/trips")
+	g.GET("", GetTrips(s))
+	g.GET("/search", SearchTrips(s))
+	g.POST("", CreateTrip(s))
+	g.POST("/:id/confirm-technical-team", ConfirmTechnicalTeam(s))
+	g.POST("/:id/end", EndTrip(s))
+	g.POST("/:id/confirm-end", ConfirmEndTrip(s))
+	g.POST("/:id/vehicle-requests", CreateVehicleRequest(s))
+
+	//....
+}

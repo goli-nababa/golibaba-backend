@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"strings"
 	"time"
 	companyDomain "transportation/internal/company/domain"
 )
@@ -24,6 +25,7 @@ type Trip struct {
 	VehicleId                VehicleId                     `json:"vehicle_id"`
 	StartTime                time.Time                     `json:"start_time"`
 	EndTime                  *time.Time                    `json:"end_time"`
+	ExpectedEndTime          *time.Time                    `json:"expected_end_time"`
 	PassengersCountLimit     uint                          `json:"passengers_count_limit"`
 	NormalCost               uint                          `json:"normal_cost"`
 	AgencyCost               uint                          `json:"agency_cost"`
@@ -63,9 +65,14 @@ type UpdateTripRequest struct {
 	TechTeamId           companyDomain.TechnicalTeamId `json:"tech_team_id"`
 }
 
-type GetTripRequest struct {
-	AgencyReleaseTime time.Time `json:"agency_release_time"`
-	ReleaseTime       time.Time `json:"release_time"`
+type GetTripsRequest struct {
+	CompanyId            companyDomain.CompanyId       `json:"company_id"`
+	TechTeamId           companyDomain.TechnicalTeamId `json:"tech_team_id"`
+	OriginStationId      uint                          `json:"origin_station_id"`
+	DestinationStationId uint                          `json:"destination_station_id"`
+	FromStartTime        *time.Time                    `json:"from_start_time"`
+	ToStartTime          *time.Time                    `json:"to_start_time"`
+	VehicleId            VehicleId                     `json:"vehicle_id"`
 }
 
 type VehicleRequest struct {
@@ -78,4 +85,28 @@ type VehicleRequest struct {
 	VehicleTypeId       uint             `json:"vehicle_type_id"`
 	VehicleCost         uint             `json:"vehicle_cost"`
 	VehicleCreationDate *time.Time       `json:"vehicle_creation_date,omitempty"`
+}
+
+type CustomDate struct {
+	time.Time
+}
+
+func (cd *CustomDate) UnmarshalJSON(b []byte) error {
+	str := strings.Trim(string(b), `"`)
+	t, err := time.Parse("2006-01-02", str)
+	if err != nil {
+		return err
+	}
+	cd.Time = t
+	return nil
+}
+
+type CreateVehicleRequest struct {
+	TripId              TripId      `json:"trip_id"`
+	VehicleTypeId       uint        `json:"vehicle_type_id"`
+	VehicleCost         uint        `json:"vehicle_cost"`
+	VehicleCreationDate *CustomDate `json:"vehicle_creation_date,omitempty"`
+}
+type GetVehicleRequests struct {
+	TripId TripId `json:"trip_id"`
 }

@@ -49,3 +49,8 @@ type TechnicalTeamMember struct {
 	MemberId        MemberId              `json:"member_id"`
 	TechnicalTeam   TechnicalTeam         `json:"technical_team"`
 }
+
+type TechnicalTeamMemberFilter struct {
+	TechnicalTeamId TechnicalTeamId `json:"technical_team_id"`
+	MemberId        MemberId        `json:"member_id"`
+}

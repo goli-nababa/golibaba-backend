@@ -5,6 +5,9 @@ import (
 	"transportation/config"
 	"transportation/internal/company"
 	companyPort "transportation/internal/company/port"
+	"transportation/internal/trip"
+	tripPort "transportation/internal/trip/port"
+
 	"transportation/pkg/adapters/storage"
 	"transportation/pkg/adapters/storage/migrations"
 	"transportation/pkg/logging"
@@ -20,6 +23,7 @@ type app struct {
 	cfg            config.Config
 	logger         logging.Logger
 	companyService companyPort.Service
+	tripService    tripPort.Service
 }
 
 func (a *app) setDB() error {
@@ -41,6 +45,10 @@ func (a *app) setDB() error {
 }
 func (a *app) companyServiceWithDB(db *gorm.DB) companyPort.Service {
 	return company.NewService(storage.NewCompanyRepo(db), a.logger)
+}
+
+func (a *app) tripServiceWithDB(db *gorm.DB) tripPort.Service {
+	return trip.NewTripService(storage.NewTripRepo(db))
 }
 
 func NewApp(cfg config.Config) (App, error) {
@@ -73,6 +81,18 @@ func (a *app) CompanyService(ctx context.Context) companyPort.Service {
 	}
 
 	return a.companyServiceWithDB(db)
+}
+
+func (a *app) TripService(ctx context.Context) tripPort.Service {
+	db := appCtx.GetDB(ctx)
+	if db == nil {
+		if a.tripService == nil {
+			a.tripService = a.tripServiceWithDB(a.db)
+		}
+		return a.tripService
+	}
+
+	return a.tripServiceWithDB(db)
 }
 
 func (a *app) Config() config.Config {

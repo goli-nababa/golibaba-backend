@@ -19,6 +19,7 @@ type Trip struct {
 	VehicleId                uint           `json:"vehicle_id"`
 	StartTime                time.Time      `json:"start_time"`
 	EndTime                  *time.Time     `json:"end_time"`
+	ExpectedEndTime          *time.Time     `json:"expected_end_time"`
 	PassengersCountLimit     uint           `json:"passengers_count_limit"`
 	NormalCost               uint           `json:"normal_cost"`
 	AgencyCost               uint           `json:"agency_cost"`

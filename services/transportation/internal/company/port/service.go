@@ -18,4 +18,5 @@ type Service interface {
 
 	AddMembersToTechnicalTeam(ctx context.Context, teamId domain.TechnicalTeamId, memberIds []domain.MemberId) (*domain.TechnicalTeam, error)
 	RemoveMembersFromTechnicalTeam(ctx context.Context, teamId domain.TechnicalTeamId, technicalTeamMemberId domain.TechnicalTeamMemberId) error
+	GetTechnicalTeamMembers(ctx context.Context, filters domain.TechnicalTeamMemberFilter) ([]domain.TechnicalTeamMember, error)
 }
