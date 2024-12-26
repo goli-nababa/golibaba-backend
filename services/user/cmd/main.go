@@ -1,18 +1,25 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"fmt"
 	"github.com/goli-nababa/golibaba-backend/common"
 	"github.com/goli-nababa/golibaba-backend/modules/gateway_client"
 	"google.golang.org/grpc"
 	"log"
 	"net"
 	"os"
+	"os/signal"
+	"strconv"
+	"sync"
+	"syscall"
 	"user_service/app"
 	"user_service/config"
 
 	pb "github.com/goli-nababa/golibaba-backend/proto/pb"
 	server "user_service/api/grpc"
+	"user_service/api/http"
 )
 
 var configPath = flag.String("config", "config.json", "Path to service config file")
@@ -55,8 +62,8 @@ func main() {
 		Port:      strconv.Itoa(int(c.Server.Port)),
 		BaseUrl:   c.Info.BaseUrl,
 		Mapping: map[string]gateway_client.Endpoint{
-			"login": {
-				Url: "/login",
+			"/login": {
+				Url: "/account/login",
 				PermissionList: map[string]any{
 					"super_admin": append(common.RbacAdminPermissions, "user_service:user:delete"),
 				},
