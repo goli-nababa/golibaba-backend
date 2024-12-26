@@ -34,7 +34,6 @@ func NewApp(cfg config.Config) (App, error) {
 	}*/
 
 	a.setRedis()
-	//a.setEmailService()
 
 	return a, nil
 }

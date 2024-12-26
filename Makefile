@@ -14,7 +14,6 @@ up: ensure-network
 		$(MAKE) -C $$service up; \
 	done
 
-
 down: ensure-network
 	@for service in $(shell echo $(SERVICES) | tr ' ' '\n' | tac); do \
 		$(MAKE) -C $$service down; \

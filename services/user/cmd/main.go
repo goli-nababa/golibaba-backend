@@ -51,6 +51,8 @@ func main() {
 		Name:      c.Info.Name,
 		Version:   c.Info.Version,
 		UrlPrefix: c.Info.UrlPrefix,
+		Host:      c.Server.Host,
+		Port:      strconv.Itoa(int(c.Server.Port)),
 		BaseUrl:   c.Info.BaseUrl,
 		Mapping: map[string]gateway_client.Endpoint{
 			"login": {
