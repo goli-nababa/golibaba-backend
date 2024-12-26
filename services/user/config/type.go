@@ -1,9 +1,24 @@
 package config
 
 type Config struct {
-	DB     DBConfig     `json:"db"`
-	Server ServerConfig `json:"server"`
-	Redis  RedisConfig  `json:"redis"`
+	DB       DBConfig          `json:"db"`
+	Server   ServerConfig      `json:"server"`
+	Redis    RedisConfig       `json:"redis"`
+	Info     ServiceInfo       `json:"service_info"`
+	Services map[string]string `json:"services"`
+}
+
+type ServiceInfo struct {
+	Name      string   `json:"name"`
+	Version   string   `json:"version"`
+	UrlPrefix string   `json:"url_prefix"`
+	BaseUrl   string   `json:"base_url"`
+	HeartBeat HeatBeat `json:"heart_beat"`
+}
+
+type HeatBeat struct {
+	Url string `json:"url"`
+	TTL uint   `json:"ttl"`
 }
 
 type DBConfig struct {

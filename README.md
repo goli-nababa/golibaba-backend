@@ -8,6 +8,10 @@ The Golibaba is a modular and scalable application inspired by travel platforms 
 ## Menu
 <!-- TOC -->
   * [Menu](#menu)
+  * [How to run the project](#how-to-run-the-project)
+    * [Up & Down](#up--down-)
+    * [Build](#build)
+    * [Logs](#logs)
   * [Microservice Structure](#microservice-structure)
   * [Service Structure Sample](#service-structure-sample)
   * [Features](#features)
@@ -37,13 +41,61 @@ The Golibaba is a modular and scalable application inspired by travel platforms 
   * [Contribution](#contribution)
 <!-- TOC -->
 
+## How to run the project
+You can use Makefile to up, down, build project.
+
+### Up & Down 
+```bash
+make up
+```
+This command runs `up` commands in `api_gateway` service and all the services in `services` directory. Every service should also have a Makefile in their root directory that handles up command.
+
+Also, you can use this command:
+```bash
+make down
+```
+This command runs `down` command in `api_gateway` and all the services.
+Some services maybe remains `still_in_use` state. You can run down command twice to make sure they are down.
+### Build
+When you run the project for the first time, docker build all the containers automatically. But after changing the code base, docker only runs the cached binary. To avoid this, you can run a command like this to build changed service before start that.
+```bash
+make -C services/user build
+make up
+```
+
+### Logs
+You can see every container log just by using docker commands:
+```bash
+# You can use -f flag to continue watching logs
+docker logs golibaba-gateway-app
+```
+
 ## Microservice Structure
 ```bash
 .
 │─── api_gateway
-│─── proxy
-│    │─── nginx.conf
-│    └─── ssl
+│─── compose
+│    │─── nginx
+│    │    │─── nginx.conf
+│    │    │─── docker-compsoe.yaml
+│    │    └─── ssl
+│    └─── rabbitmq
+│         └─── docker-compsoe.yaml
+│─── common
+│    │─── service_domain.go
+│    │─── other_service_domain.go
+│    │─── other_service_port.go
+│    │─── ...
+│    └─── go.mod
+│─── modules
+│    │─── cache
+│    │─── gateway_client
+│    │    │─── client.go
+│    │    │─── contract.go
+│    │    └─── go.mod
+│    │─── user_service_client
+│    │─── other_services_client
+│    └─── ...
 │─── services
 │    │─── user
 │    │─── hotels
@@ -53,8 +105,10 @@ The Golibaba is a modular and scalable application inspired by travel platforms 
 │    │─── hotel
 │    └─── other services
 │─── proto
-│─── Makefile
-└─── docker-compose.yaml
+│    │─── pb
+│    │─── proto
+│    └─── Makefile
+└─── Makefile
 ```
 
 ## Service Structure Sample
