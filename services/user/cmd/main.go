@@ -76,10 +76,36 @@ func main() {
 		return
 	}
 
-	log.Println("Starting gRPC Server on port 8081")
-	err = grpcServer.Serve(l)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
-	if err != nil {
-		return
-	}
+	wg := sync.WaitGroup{}
+	wg.Wait()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		err = http.Bootstrap(appContainer, c.Server)
+
+		if err != nil {
+			return
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		log.Println("Starting gRPC Server on port 8081")
+		err = grpcServer.Serve(l)
+
+		if err != nil {
+			return
+		}
+	}()
+
+	<-ctx.Done()
+	fmt.Println("Server received shutdown signal, waiting for components to stop...")
+	return
 }
