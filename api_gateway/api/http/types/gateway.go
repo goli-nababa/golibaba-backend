@@ -2,7 +2,9 @@ package types
 
 type RegisterRequest struct {
 	Name      string              `json:"name" validate:"required,min=4"`
-	Version   string              `json:"version" validate:"required,min=1,semver"`
+	Port      string              `json:"port" validate:"required,min=2"`
+	Host      string              `json:"host" validate:"required,min=2"`
+	Version   string              `json:"version" validate:"required,min=1"`
 	UrlPrefix string              `json:"url_prefix" validate:"required"`
 	BaseUrl   string              `json:"base_url" validate:"required"`
 	Mapping   map[string]Endpoint `json:"mapping" validate:"required"`

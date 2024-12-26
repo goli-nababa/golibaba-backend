@@ -6,6 +6,8 @@ type GatewayService interface {
 
 type RegisterRequest struct {
 	Name      string              `json:"name" validate:"required,min=4"`
+	Port      string              `json:"port" validate:"required,min=4"`
+	Host      string              `json:"host" validate:"required,min=4"`
 	Version   string              `json:"version" validate:"required,min=1,semver"`
 	UrlPrefix string              `json:"url_prefix" validate:"required"`
 	BaseUrl   string              `json:"base_url" validate:"required"`

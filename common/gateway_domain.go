@@ -15,6 +15,8 @@ type Endpoint struct {
 // inter-service communication settings, and default headers for requests.
 type Service struct {
 	Name      string              // The name of the service.
+	Port      string              // Service port.
+	Host      string              // Service hort.
 	Version   string              // The version of the service.
 	UrlPrefix string              // The URL prefix for routing requests to this service.
 	BaseUrl   string              // The base URL used for inter-service communication.
