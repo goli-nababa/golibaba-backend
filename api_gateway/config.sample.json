@@ -1,22 +1,10 @@
 {
-  "db": {
-    "host": "golibaba-db",
-    "port": 5432,
-    "user": "porestgres",
-    "pass": "postgres",
-    "name": "postgres",
-    "schema": "public"
-  },
   "server": {
     "port": 8080,
-    "otp_ttl_minutes": 5,
-    "password_secret": "your_password_secret_key",
-    "secret": "your_jwt_secret_key",
-    "auth_expiration_minutes": 60,
-    "auth_refresh_minutes": 1440
+    "service_ttl": 0
   },
   "redis": {
-    "host": "golibaba-redis",
+    "host": "golibaba-gateway-redis",
     "port": 6379
   }
 }

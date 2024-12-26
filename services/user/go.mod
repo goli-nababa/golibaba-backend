@@ -3,6 +3,8 @@ module user_service
 go 1.23.3
 
 require (
+	github.com/goli-nababa/golibaba-backend/common v0.0.0
+	github.com/goli-nababa/golibaba-backend/modules/gateway_client v0.0.0
 	github.com/goli-nababa/golibaba-backend/proto/pb v0.0.0
 	google.golang.org/grpc v1.69.2
 	gorm.io/driver/postgres v1.5.11
@@ -10,6 +12,7 @@ require (
 )
 
 require (
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.5.5 // indirect
@@ -25,4 +28,8 @@ require (
 	google.golang.org/protobuf v1.36.0 // indirect
 )
 
-replace github.com/goli-nababa/golibaba-backend/proto/pb => ../../proto/pb
+replace (
+	github.com/goli-nababa/golibaba-backend/common => ../../common
+	github.com/goli-nababa/golibaba-backend/modules/gateway_client => ../../modules/gateway_client
+	github.com/goli-nababa/golibaba-backend/proto/pb => ../../proto/pb
+)
