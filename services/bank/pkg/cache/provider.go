@@ -31,7 +31,7 @@ type ObjectCacher[T any] struct {
 	serializationType SerializationType
 }
 
-const KEY_PREFIX = "Location_SERVICE"
+const KEY_PREFIX = "Bank_SERVICE"
 
 func createKey(k string) string {
 	return KEY_PREFIX + "." + k
