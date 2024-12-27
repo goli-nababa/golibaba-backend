@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"time"
 	commonDomain "transportation/internal/common/domain"
 
 	"transportation/internal/trip/domain"
@@ -151,4 +152,36 @@ func (r *TripRepo) GetVehicleRequests(ctx context.Context, request *commonDomain
 
 	mapper.ConvertTypes(companies, &vehicleRequestDomains)
 	return vehicleRequestDomains, nil
+}
+
+func (r *TripRepo) GetShouldCheckVehicleRequests(ctx context.Context, limit int, offset int) (requests []domain.VehicleRequest, err error) {
+
+	var vehicleRequests []types.VehicleRequest
+
+	db := r.db.WithContext(ctx).
+		Joins("inner join trips t on t.id = vehicle_requests.trip_id").
+		Preload("Trip").
+		Where("vehicle_requests.deleted_at IS NULL AND t.deleted_at IS NULL AND t.start_time > ?", time.Now()).
+		Order("vehicle_requests.last_check_time ASC").
+		Limit(limit).
+		Offset(offset)
+
+	if err := db.Find(&vehicleRequests).Error; err != nil {
+		return nil, err
+	}
+
+	return requests, mapper.ConvertTypes(vehicleRequests, &requests)
+}
+func (r *TripRepo) UpdateVehicleRequestsLastCheckTime(ctx context.Context, ids []domain.VehicleRequestId) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	err := r.db.WithContext(ctx).
+		Model(&types.VehicleRequest{}).
+		Where("id IN ?", ids).
+		Update("last_check_time", time.Now()).
+		Error
+
+	return err
 }

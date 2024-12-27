@@ -16,4 +16,5 @@ type VehicleRequest struct {
 	VehicleTypeId       uint           `json:"vehicle_type_id"`
 	VehicleCost         uint           `json:"vehicle_cost"`
 	VehicleCreationDate *time.Time     `json:"vehicle_creation_date,omitempty"`
+	LastCheckTime       *time.Time     `gorm:"default:'1800-01-01 00:00:00'" json:"last_check_time,omitempty"`
 }

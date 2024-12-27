@@ -19,5 +19,23 @@
     "encoding": "json",
     "level": "debug",
     "logger": "zap"
+  },
+  "message_queue":{
+    "rabbit_mq_host":"192.168.1.10",
+    "rabbit_mq_port":"5672",
+    "rabbit_mq_username":"guest",
+    "rabbit_mq_password":"guest",
+    "vehicle_request_queue_name":"vehicle_requests"
+  },
+  "service_info": {
+    "name": "sample_service",
+    "version": "1.0.0",
+    "url_prefix": "/v1/prefix_that_gateway_should_recognize",
+    "base_url": "/v1/service_urls_base_url",
+    "heart_beat": {
+      "url": "/health",
+      "ttl": 5
+    }
   }
+
 }

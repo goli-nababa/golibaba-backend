@@ -18,4 +18,6 @@ type Repo interface {
 	GetVehicleRequestByID(ctx context.Context, id domain.VehicleRequestId) (*domain.VehicleRequest, error)
 	DeleteVehicleRequest(ctx context.Context, id domain.VehicleRequestId) error
 	GetVehicleRequests(ctx context.Context, request *commonDomain.RepositoryRequest) ([]domain.VehicleRequest, error)
+	GetShouldCheckVehicleRequests(ctx context.Context, limit int, offset int) ([]domain.VehicleRequest, error)
+	UpdateVehicleRequestsLastCheckTime(ctx context.Context, ids []domain.VehicleRequestId) error
 }
