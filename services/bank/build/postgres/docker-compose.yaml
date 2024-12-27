@@ -1,0 +1,30 @@
+services:
+  bank-postgres:
+    image: postgres:15-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-golibaba}_bank_postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${DB_USER:-bankuser}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-bankpass}
+      - POSTGRES_DB=${DB_NAME:-bankdb}
+      - TZ=Asia/Tehran
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - bank_postgres_data:/var/lib/postgresql/data
+    networks:
+      - golibaba-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-bankuser} -d ${DB_NAME:-bankdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  bank_postgres_data:
+    name: ${COMPOSE_PROJECT_NAME:-golibaba}_bank_postgres_data
+
+networks:
+  golibaba-network:
+    external: true
