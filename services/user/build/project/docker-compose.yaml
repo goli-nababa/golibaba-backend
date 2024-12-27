@@ -3,8 +3,6 @@ services:
     container_name: golibaba-user-service-app
     networks:
       - golibaba-network
-    ports:
-      - "8085:8080"
     build:
       context: ../
       dockerfile: build/project/Dockerfile
