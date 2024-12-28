@@ -32,6 +32,7 @@ type DBConfig struct {
 
 type ServerConfig struct {
 	Port                  uint   `json:"port"`
+	Host                  string `json:"host"`
 	Secret                string `json:"secret"`
 	PasswordSecret        string `json:"password_secret"`
 	OtpTtlMinutes         uint   `json:"otp_ttl_minutes"`
