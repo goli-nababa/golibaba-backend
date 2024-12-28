@@ -20,7 +20,7 @@ func NewService(repo port.Repo) port.Service {
 
 func (s *service) CreateUser(ctx context.Context, user *common.User) error {
 	if err := s.userRepo.Create(ctx, user); err != nil {
-		return fmt.Errorf("failed to create location: %w", err)
+		return fmt.Errorf("failed to create user: %w", err)
 	}
 	return nil
 }

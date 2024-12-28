@@ -7,6 +7,7 @@ import (
 	user "user_service/internal"
 	userPort "user_service/internal/port"
 	"user_service/pkg/adapters/storage"
+	"user_service/pkg/adapters/storage/migrations"
 	appCtx "user_service/pkg/context"
 	"user_service/pkg/postgres"
 
