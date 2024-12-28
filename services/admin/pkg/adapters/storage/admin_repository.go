@@ -1,9 +1,8 @@
 package storage
 
 import (
-	"admin/internal/admin/domain"
-	"admin/internal/admin/port"
-	"admin/pkg/adapters/storage/mapper"
+	"admin/internal/domain"
+	"admin/internal/port"
 	"context"
 
 	"gorm.io/gorm"
@@ -19,6 +18,5 @@ func NewAdminRepo(db *gorm.DB) port.Repo {
 }
 
 func (r *adminRepo) Create(ctx context.Context, repoDomain domain.Admin) (*domain.Admin, error) {
-	admin := mapper.AdminDomain2Storage(repoDomain)
-	return mapper.AdminStorage2Domain(*admin), r.db.Table("users").WithContext(ctx).Create(admin).Error
+	return &repoDomain, nil
 }

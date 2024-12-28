@@ -2,7 +2,7 @@ package app
 
 import (
 	"admin/config"
-	adminPort "admin/internal/admin/port"
+	adminPort "admin/internal/port"
 	"context"
 
 	"gorm.io/gorm"

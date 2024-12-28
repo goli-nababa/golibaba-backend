@@ -37,3 +37,9 @@ type RedisConfig struct {
 	Host string `json:"host"`
 	Port uint   `json:"port"`
 }
+
+type GrpcConfig struct {
+	Url     string `json:"url"`
+	Version uint32 `json:"version"`
+	Port    uint64 `json:"port"`
+}

@@ -1,8 +1,8 @@
 package http
 
 import (
-	"admin/api/http/routes"
-	"admin/app"
+	"admin/api/http/services"
+	di "admin/app"
 	"admin/config"
 	"context"
 	"fmt"
@@ -10,11 +10,12 @@ import (
 	"github.com/labstack/echo"
 )
 
-func Run(appContainer app.App, cfg config.ServerConfig) error {
-	app := echo.New()
-	api := app.Group("/api/v1")
-	ctx := context.Background()
-	routes.RegisterAdminRoutes(ctx, api, appContainer, cfg)
+func Bootstrap(appContainer di.App, cfg config.Config) error {
+	e := echo.New()
+	adminService := services.NewAdminService(appContainer.AdminService(context.Background()))
 
-	return app.Start(fmt.Sprintf(":%d", cfg.Port))
+	api := e.Group("/api/v1")
+	RegisterAdminRoutes(api, adminService)
+
+	return e.Start(fmt.Sprintf(":%d", cfg.Server.Port))
 }
