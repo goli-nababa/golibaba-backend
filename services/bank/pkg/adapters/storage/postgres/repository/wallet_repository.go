@@ -79,7 +79,7 @@ func (r *WalletRepository) FindByID(ctx context.Context, id domain.WalletID) (*d
 		Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
+			return nil, gorm.ErrRecordNotFound
 		}
 		return nil, err
 	}
