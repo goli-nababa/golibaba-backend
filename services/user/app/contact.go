@@ -1,7 +1,15 @@
 package app
 
-import "user_service/config"
+import (
+	"context"
+	"user_service/config"
+	userPort "user_service/internal/port"
+
+	"gorm.io/gorm"
+)
 
 type App interface {
 	Config() config.Config
+	DB() *gorm.DB
+	UserService(ctx context.Context) userPort.Service
 }
