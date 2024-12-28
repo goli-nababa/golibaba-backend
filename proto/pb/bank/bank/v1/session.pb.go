@@ -281,7 +281,6 @@ func (x *RollbackTransactionResponse) GetSuccess() bool {
 	return false
 }
 
-// proto/bank/v1/common.proto (update)
 type Error struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

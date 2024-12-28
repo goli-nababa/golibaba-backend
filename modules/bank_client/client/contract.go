@@ -1,8 +1,8 @@
 package client
 
 import (
-	pb "bank_service_client/proto/gen/go/bank/v1"
 	"context"
+	pb "github.com/goli-nababa/golibaba-backend/proto/pb/bank/bank/v1"
 
 	"time"
 )

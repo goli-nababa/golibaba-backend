@@ -1,14 +1,14 @@
 package bank_client_test
 
 import (
-	"bank_service_client/client"
 	"context"
+	"github.com/goli-nababa/golibaba-backend/modules/bank_service_client/client"
 
 	"google.golang.org/grpc/metadata"
 	"testing"
 	"time"
 
-	pb "bank_service_client/proto/gen/go/bank/v1"
+	pb "github.com/goli-nababa/golibaba-backend/proto/pb/bank/bank/v1"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"

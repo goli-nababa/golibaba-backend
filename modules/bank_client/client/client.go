@@ -1,10 +1,10 @@
 package client
 
 import (
-	pb "bank_service_client/proto/gen/go/bank/v1"
 	"context"
 	"crypto/tls"
 	"fmt"
+	pb "github.com/goli-nababa/golibaba-backend/proto/pb/bank/bank/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"

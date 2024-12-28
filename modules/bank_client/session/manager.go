@@ -1,8 +1,8 @@
 package session
 
 import (
-	"bank_service_client/client"
 	"context"
+	"github.com/goli-nababa/golibaba-backend/modules/bank_service_client/client"
 )
 
 type Manager struct {

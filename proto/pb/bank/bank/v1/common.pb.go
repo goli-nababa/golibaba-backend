@@ -21,7 +21,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Common types used across services
 type Money struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

@@ -1,10 +1,10 @@
 package bank_client_test
 
 import (
-	pb "bank_service_client/proto/gen/go/bank/v1"
-	"bank_service_client/session"
 	"context"
 	"fmt"
+	"github.com/goli-nababa/golibaba-backend/modules/bank_service_client/session"
+	pb "github.com/goli-nababa/golibaba-backend/proto/pb/bank/bank/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"time"

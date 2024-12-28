@@ -1,9 +1,9 @@
 package session
 
 import (
-	"bank_service_client/client"
 	"context"
 	"fmt"
+	"github.com/goli-nababa/golibaba-backend/modules/bank_service_client/client"
 
 	"google.golang.org/grpc/metadata"
 )
