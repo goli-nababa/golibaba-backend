@@ -7,5 +7,5 @@ import (
 )
 
 type Repo interface {
-	CreateUser(ctx context.Context, user *common.User) error
+	Create(ctx context.Context, user *common.User) error
 }
