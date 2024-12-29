@@ -64,6 +64,14 @@ func main() {
 				Url:            "/trips",
 				PermissionList: map[string]any{},
 			},
+			"/trips/search": {
+				Url:            "/trips/search",
+				PermissionList: map[string]any{},
+			},
+			"/companies": {
+				Url:            "/companies",
+				PermissionList: map[string]any{},
+			},
 		},
 		HeartBeat: heartBeat,
 	})
