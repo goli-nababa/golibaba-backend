@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package bank.v1;
+
+option go_package = "bank_service/gen/go/bank/v1;bankv1";
+
+import "google/protobuf/timestamp.proto";
+import "bank/v1/common.proto";
+import "bank/v1/transaction.proto";
+
+service CommissionService {
+  rpc CalculateCommission(CalculateCommissionRequest) returns (CalculateCommissionResponse);
+  rpc ProcessCommission(ProcessCommissionRequest) returns (ProcessCommissionResponse);
+  rpc GetCommission(GetCommissionRequest) returns (GetCommissionResponse);
+  rpc GetPendingCommissions(GetPendingCommissionsRequest) returns (GetPendingCommissionsResponse);
+  rpc GetFailedCommissions(GetFailedCommissionsRequest) returns (GetFailedCommissionsResponse);
+  rpc RetryFailedCommissions(RetryFailedCommissionsRequest) returns (RetryFailedCommissionsResponse);
+}
+
+message Commission {
+  string id = 1;
+  string transaction_id = 2;
+  Money amount = 3;
+  double rate = 4;
+  string recipient_id = 5;
+  string business_type = 6;
+  string status = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp paid_at = 9;
+  string description = 10;
+}
+
+message CalculateCommissionRequest {
+  Transaction transaction = 1;
+  string business_type = 2;
+}
+
+message CalculateCommissionResponse {
+  Commission commission = 1;
+}
+
+message ProcessCommissionRequest {
+  string commission_id = 1;
+}
+
+message ProcessCommissionResponse {
+  bool success = 1;
+}
+
+message GetCommissionRequest {
+  string commission_id = 1;
+}
+
+message GetCommissionResponse {
+  Commission commission = 1;
+}
+
+message GetPendingCommissionsRequest {}
+
+message GetPendingCommissionsResponse {
+  repeated Commission commissions = 1;
+}
+
+message GetFailedCommissionsRequest {}
+
+message GetFailedCommissionsResponse {
+  repeated Commission commissions = 1;
+}
+
+message RetryFailedCommissionsRequest {}
+
+message RetryFailedCommissionsResponse {
+  int32 retried_count = 1;
+  int32 success_count = 2;
+}
