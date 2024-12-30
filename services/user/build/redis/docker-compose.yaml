@@ -1,7 +1,7 @@
 services:
   golibaba-user-service-redis:
     image: redis/redis-stack:latest
-    container_name: /mnt/E69C85A89C8573B9/Project/Main/golibaba-backend/services/user/build/redis/docker-compose.yaml
+    container_name: golibaba-user-service-redis
     ports:
       - "8004:8001"
     networks:

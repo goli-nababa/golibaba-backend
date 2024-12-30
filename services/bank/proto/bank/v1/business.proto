@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package bank.v1;
+
+option go_package = "bank_service/gen/go/bank/v1;bankv1";
+
+import "google/protobuf/timestamp.proto";
+import "bank/v1/common.proto";
+
+service BusinessService {
+  rpc CreateBusinessWallet(CreateBusinessWalletRequest) returns (CreateBusinessWalletResponse);
+  rpc GetBusinessWallet(GetBusinessWalletRequest) returns (GetBusinessWalletResponse);
+  rpc UpdateBusinessWallet(UpdateBusinessWalletRequest) returns (UpdateBusinessWalletResponse);
+  rpc SetPayoutSchedule(SetPayoutScheduleRequest) returns (SetPayoutScheduleResponse);
+  rpc RequestPayout(RequestPayoutRequest) returns (RequestPayoutResponse);
+  rpc GetBusinessStats(GetBusinessStatsRequest) returns (GetBusinessStatsResponse);
+}
+
+message BusinessWallet {
+  string id = 1;
+  uint64 business_id = 2;
+  string business_type = 3;
+  Money balance = 4;
+  string status = 5;
+  double commission_rate = 6;
+  string payout_schedule = 7;
+  google.protobuf.Timestamp last_payout_date = 8;
+  Money minimum_payout = 9;
+  BankAccountInfo bank_info = 10;
+}
+
+message CreateBusinessWalletRequest {
+  uint64 business_id = 1;
+  string business_type = 2;
+  string currency = 3;
+}
+
+message CreateBusinessWalletResponse {
+  BusinessWallet wallet = 1;
+}
+
+message GetBusinessWalletRequest {
+  string wallet_id = 1;
+}
+
+message GetBusinessWalletResponse {
+  BusinessWallet wallet = 1;
+}
+
+message UpdateBusinessWalletRequest {
+  BusinessWallet wallet = 1;
+}
+
+message UpdateBusinessWalletResponse {
+  BusinessWallet wallet = 1;
+}
+
+message SetPayoutScheduleRequest {
+  string wallet_id = 1;
+  string schedule = 2;
+}
+
+message SetPayoutScheduleResponse {
+  bool success = 1;
+}
+
+message RequestPayoutRequest {
+  string wallet_id = 1;
+  Money amount = 2;
+}
+
+message RequestPayoutResponse {
+  bool success = 1;
+}
+
+message GetBusinessStatsRequest {
+  uint64 business_id = 1;
+  google.protobuf.Timestamp start_date = 2;
+  google.protobuf.Timestamp end_date = 3;
+}
+
+message GetBusinessStatsResponse {
+  BusinessStats stats = 1;
+}

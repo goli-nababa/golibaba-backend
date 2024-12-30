@@ -1,9 +1,3 @@
-ROOT_DIR := ./
-
-# Compose files relative to the root directory
-COMPOSE_FILES := \
-	-f $(ROOT_DIR)/compose/rabbitmq/docker-compose.yaml
-
 NETWORK_NAME=golibaba-network
 
 ensure-network:
@@ -13,5 +7,16 @@ ensure-network:
 		docker network create $(NETWORK_NAME); \
 	fi
 
+SERVICES := api_gateway $(wildcard services/*)
+
 up: ensure-network
-	docker compose --project-directory $(ROOT_DIR) $(COMPOSE_FILES) up
+	@for service in $(SERVICES); do \
+		$(MAKE) -C $$service up; \
+	done
+
+down: ensure-network
+	@for service in $(shell echo $(SERVICES) | tr ' ' '\n' | tac); do \
+		$(MAKE) -C $$service down; \
+	done
+
+

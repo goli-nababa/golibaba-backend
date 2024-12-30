@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package bank.v1;
+
+option go_package = "bank_service/gen/go/bank/v1;bankv1";
+
+service SessionService {
+  rpc BeginTransaction(BeginTransactionRequest) returns (BeginTransactionResponse);
+  rpc CommitTransaction(CommitTransactionRequest) returns (CommitTransactionResponse);
+  rpc RollbackTransaction(RollbackTransactionRequest) returns (RollbackTransactionResponse);
+}
+
+message BeginTransactionRequest {}
+
+message BeginTransactionResponse {
+  string session_id = 1;
+}
+
+message CommitTransactionRequest {
+  string session_id = 1;
+}
+
+message CommitTransactionResponse {
+  bool success = 1;
+}
+
+message RollbackTransactionRequest {
+  string session_id = 1;
+}
+
+message RollbackTransactionResponse {
+  bool success = 1;
+}
+
+message Error {
+  string code = 1;
+  string message = 2;
+  map<string, string> details = 3;
+}
+
+message Metadata {
+  string session_id = 10;
+}

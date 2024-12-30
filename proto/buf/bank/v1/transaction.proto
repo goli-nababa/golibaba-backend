@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package bank.v1;
+
+option go_package = "bank_service/gen/go/bank/v1;bankv1";
+
+import "google/protobuf/timestamp.proto";
+import "bank/v1/common.proto";
+
+service TransactionService {
+  rpc CreateTransaction(CreateTransactionRequest) returns (CreateTransactionResponse);
+  rpc ProcessTransaction(ProcessTransactionRequest) returns (ProcessTransactionResponse);
+  rpc CancelTransaction(CancelTransactionRequest) returns (CancelTransactionResponse);
+  rpc GetTransaction(GetTransactionRequest) returns (GetTransactionResponse);
+  rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse);
+}
+
+message Transaction {
+  string id = 1;
+  string from_wallet_id = 2;
+  string to_wallet_id = 3;
+  Money amount = 4;
+  string type = 5;
+  string status = 6;
+  string description = 7;
+  string reference_id = 8;
+  string failure_reason = 9;
+  map<string, string> metadata = 10;
+  repeated StatusChange status_history = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
+  google.protobuf.Timestamp completed_at = 14;
+  int32 version = 15;
+}
+
+message StatusChange {
+  string from_status = 1;
+  string to_status = 2;
+  string reason = 3;
+  google.protobuf.Timestamp changed_at = 4;
+}
+
+message CreateTransactionRequest {
+  string from_wallet_id = 1;
+  string to_wallet_id = 2;
+  Money amount = 3;
+  string type = 4;
+  string description = 5;
+}
+
+message CreateTransactionResponse {
+  Transaction transaction = 1;
+}
+
+message ProcessTransactionRequest {
+  string transaction_id = 1;
+}
+
+message ProcessTransactionResponse {
+  Transaction transaction = 1;
+}
+
+message CancelTransactionRequest {
+  string transaction_id = 1;
+  string reason = 2;
+}
+
+message CancelTransactionResponse {
+  Transaction transaction = 1;
+}
+
+message GetTransactionRequest {
+  string transaction_id = 1;
+}
+
+message GetTransactionResponse {
+  Transaction transaction = 1;
+}
+
+message ListTransactionsRequest {
+  string wallet_id = 1;
+  repeated string status = 2;
+  repeated string types = 3;
+  google.protobuf.Timestamp from_date = 4;
+  google.protobuf.Timestamp to_date = 5;
+}
+
+message ListTransactionsResponse {
+  repeated Transaction transactions = 1;
+}
