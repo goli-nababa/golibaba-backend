@@ -3,6 +3,7 @@ package grpc_server
 import (
 	"context"
 	"fmt"
+	pb "github.com/goli-nababa/golibaba-backend/proto/pb/buf/location/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	di "navigation_service/app"
@@ -10,7 +11,6 @@ import (
 	"navigation_service/internal/location/domain"
 	RoutingDomain "navigation_service/internal/routing/domain"
 	"navigation_service/pkg/errors"
-	pb "navigation_service/proto/gen/go/location/v1"
 	"net"
 )
 

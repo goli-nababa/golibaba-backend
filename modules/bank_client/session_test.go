@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/goli-nababa/golibaba-backend/modules/bank_service_client/session"
-	pb "github.com/goli-nababa/golibaba-backend/proto/pb/bank/bank/v1"
+	pb "github.com/goli-nababa/golibaba-backend/proto/pb/buf/bank/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"time"

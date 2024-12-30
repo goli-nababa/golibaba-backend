@@ -2,7 +2,7 @@ package client
 
 import (
 	"context"
-	pb "github.com/goli-nababa/golibaba-backend/proto/pb/bank/bank/v1"
+	pb "github.com/goli-nababa/golibaba-backend/proto/pb/buf/bank/v1"
 
 	"time"
 )

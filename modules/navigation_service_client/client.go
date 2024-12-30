@@ -3,7 +3,7 @@ package navigation_service_client
 import (
 	"context"
 	"fmt"
-	pb "github.com/goli-nababa/golibaba-backend/modules/navigation_service_client/proto/gen/go/location/v1"
+	pb "github.com/goli-nababa/golibaba-backend/proto/pb/buf/location/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"time"

@@ -3,7 +3,7 @@
 ## مدل‌های پایه
 
 ### Money
-```protobuf
+```
 message Money {
   int64 amount = 1;
   string currency = 2;
@@ -45,7 +45,7 @@ message Money {
 
 از پکیج `pkg/transaction` برای مدیریت تراکنش‌ها استفاده می‌شود:
 
-```go
+```
 // شروع تراکنش
 ctx := transaction.BeginTransaction(baseCtx)
 
@@ -61,7 +61,7 @@ err := transaction.Rollback(ctx)
 
 ### 1. فرایند خرید بلیط:
 
-```go
+```
 func ProcessTicketPurchase(ctx context.Context, ticketData *TicketData) error {
     // شروع تراکنش
     txCtx := transaction.BeginTransaction(ctx)
@@ -110,7 +110,7 @@ func ProcessTicketPurchase(ctx context.Context, ticketData *TicketData) error {
 
 ### 2. فرایند توزیع درآمد:
 
-```go
+```
 func DistributeRevenue(ctx context.Context, tripData *TripData) error {
     txCtx := transaction.BeginTransaction(ctx)
     defer transaction.Rollback(txCtx)
@@ -161,7 +161,7 @@ func DistributeRevenue(ctx context.Context, tripData *TripData) error {
 
 ### 3. فرایند استرداد:
 
-```go
+```
 func ProcessRefund(ctx context.Context, refundData *RefundData) error {
     txCtx := transaction.BeginTransaction(ctx)
     defer transaction.Rollback(txCtx)
