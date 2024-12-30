@@ -12,6 +12,11 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gorm.io/driver/postgres v1.5.11
 	gorm.io/gorm v1.25.12
+
+	github.com/goli-nababa/golibaba-backend/common v0.0.0
+    github.com/goli-nababa/golibaba-backend/modules/gateway_client v0.0.0
+	github.com/goli-nababa/golibaba-backend/proto/pb v0.0.0
+
 )
 
 require (
@@ -39,9 +44,12 @@ require (
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/text v0.19.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241015192408-796eee8c2d53 // indirect
-	github.com/goli-nababa/golibaba-backend/proto/pb v0.0.0
-	
+
 )
 
 
-replace github.com/goli-nababa/golibaba-backend/proto/pb => ../../proto/pb
+replace (
+	github.com/goli-nababa/golibaba-backend/proto/pb => ../../proto/pb
+	github.com/goli-nababa/golibaba-backend/common => ../../common
+	github.com/goli-nababa/golibaba-backend/modules/gateway_client => ../../modules/gateway_client
+)

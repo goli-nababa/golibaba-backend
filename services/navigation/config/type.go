@@ -1,10 +1,12 @@
 package config
 
 type Config struct {
-	DB     DBConfig     `json:"db"`
-	Server ServerConfig `json:"server"`
-	Redis  RedisConfig  `json:"redis"`
-	Logger LoggerConfig `json:"logger"`
+	DB       DBConfig          `json:"db"`
+	Server   ServerConfig      `json:"server"`
+	Redis    RedisConfig       `json:"redis"`
+	Logger   LoggerConfig      `json:"logger"`
+	Info     ServiceInfo       `json:"service_info"`
+	Services map[string]string `json:"services"`
 }
 
 type LoggerConfig struct {
@@ -25,6 +27,7 @@ type DBConfig struct {
 
 type ServerConfig struct {
 	Port                  uint   `json:"port"`
+	Host                  string `json:"host"`
 	Secret                string `json:"secret"`
 	PasswordSecret        string `json:"password_secret"`
 	OtpTtlMinutes         uint   `json:"otp_ttl_minutes"`
@@ -36,4 +39,17 @@ type ServerConfig struct {
 type RedisConfig struct {
 	Host string `json:"host"`
 	Port uint   `json:"port"`
+}
+
+type HeatBeat struct {
+	Url string `json:"url"`
+	TTL uint   `json:"ttl"`
+}
+
+type ServiceInfo struct {
+	Name      string   `json:"name"`
+	Version   string   `json:"version"`
+	UrlPrefix string   `json:"url_prefix"`
+	BaseUrl   string   `json:"base_url"`
+	HeartBeat HeatBeat `json:"heart_beat"`
 }
