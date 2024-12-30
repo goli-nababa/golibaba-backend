@@ -14,6 +14,104 @@ message CreateUserResponse {
   string message = 2;
 }
 
+message BlockUserRequest {
+    uint64 user_id = 1;
+}
+
+message BlockUserResponse {}
+
+message UnblockUserRequest {
+  uint64 user_id = 1;
+}
+
+message UnblockUserResponse {}
+
+message GetUserByIDRequest {
+  uint64 user_id = 1;
+}
+
+message GetUserByIDResponse {
+  User user = 1;
+}
+
+message GetUserByUUIDRequest {
+  string uuid = 1;
+}
+
+message GetUserByUUIDResponse {
+  User user = 1;
+}
+
+message DeleteUserRequest {
+  uint64 user_id = 1;
+}
+
+message DeleteUserResponse {}
+
+message AssignRoleRequest {
+  uint64 user_id = 1;
+  string role = 2;
+}
+
+message AssignRoleResponse {}
+
+message CancelRoleRequest {
+  uint64 user_id = 1;
+  string role = 2;
+}
+
+message CancelRoleResponse {}
+
+message AssignPermissionRequest {
+  string role = 1;
+  repeated string permissions = 2;
+}
+
+message AssignPermissionResponse {}
+
+message RevokePermissionRequest {
+  string role = 1;
+  repeated string permissions = 2;
+}
+
+message RevokePermissionResponse {}
+
+message PublishStatementRequest {
+  repeated uint64 user_ids = 1;
+  string action = 2;
+  repeated string permissions = 3;
+}
+
+message PublishStatementResponse {}
+
+message CancelStatementRequest {
+  uint64 user_id = 1;
+  uint64 statement_id = 2;
+}
+
+message CancelStatementResponse {}
+
+message CheckAccessRequest {
+  uint64 user_id = 1;
+  repeated string permissions = 2;
+}
+
+message CheckAccessResponse {
+  bool has_access = 1;
+}
+
 service UserService {
   rpc CreateUser(User) returns (CreateUserResponse);
+  rpc BlockUser(BlockUserRequest) returns (BlockUserResponse);
+  rpc UnblockUser(UnblockUserRequest) returns (UnblockUserResponse);
+  rpc GetUserByID(GetUserByIDRequest) returns (GetUserByIDResponse);
+  rpc GetUserByUUID(GetUserByUUIDRequest) returns (GetUserByUUIDResponse);
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+  rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse);
+  rpc CancelRole(CancelRoleRequest) returns (CancelRoleResponse);
+  rpc AssignPermission(AssignPermissionRequest) returns (AssignPermissionResponse);
+  rpc RevokePermission(RevokePermissionRequest) returns (RevokePermissionResponse);
+  rpc PublishStatement(PublishStatementRequest) returns (PublishStatementResponse);
+  rpc CancelStatement(CancelStatementRequest) returns (CancelStatementResponse);
+  rpc CheckAccess(CheckAccessRequest) returns (CheckAccessResponse);
 }
