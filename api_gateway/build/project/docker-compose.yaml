@@ -5,8 +5,6 @@ services:
       - golibaba-network
     ports:
       - "8081:8081"
-      - "8080:8080"
-
     build:
       context: ../
       dockerfile: build/project/Dockerfile

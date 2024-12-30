@@ -55,6 +55,7 @@ func (g *Gateway) matchService(ctx context.Context, path string) (*types.Registe
 	serviceVersion := segments[0]
 	serviceName := segments[1]
 	cacheKey := fmt.Sprintf("%s.%s", serviceName, serviceVersion)
+
 	// Check if the service exists
 	exists, err := g.cacheProvider.Exists(ctx, cacheKey)
 
