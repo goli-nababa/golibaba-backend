@@ -86,3 +86,4 @@ docs/api/*.yaml
 *.bak
 *.backup
 ./vendor
+config.json
