@@ -82,48 +82,107 @@ func (g *Gateway) matchService(ctx context.Context, path string) (*types.Registe
 	return service, nil
 }
 
+func (g *Gateway) matchDynamicPath(actualPath, pattern string) map[string]string {
+	actual := strings.Split(strings.Trim(actualPath, "/"), "/")
+	expected := strings.Split(strings.Trim(pattern, "/"), "/")
+
+	if len(actual) != len(expected) {
+		return nil
+	}
+
+	params := make(map[string]string)
+	for i, exp := range expected {
+		if strings.HasPrefix(exp, "{") && strings.HasSuffix(exp, "}") {
+			paramName := strings.Trim(exp, "{}")
+			params[paramName] = actual[i]
+		} else if exp != actual[i] {
+			return nil
+		}
+	}
+	return params
+}
+
+func (g *Gateway) replaceDynamicParts(targetPattern, sourcePattern, actualPath string) string {
+	sourceParts := strings.Split(strings.Trim(sourcePattern, "/"), "/")
+	actualParts := strings.Split(strings.Trim(actualPath, "/"), "/")
+	targetParts := strings.Split(strings.Trim(targetPattern, "/"), "/")
+
+	result := make([]string, len(targetParts))
+	paramMap := make(map[string]string)
+
+	// Build parameter mapping
+	for i, part := range sourceParts {
+		if strings.HasPrefix(part, "{") && strings.HasSuffix(part, "}") {
+			paramName := strings.Trim(part, "{}")
+			paramMap[paramName] = actualParts[i]
+		}
+	}
+
+	// Replace parameters in target
+	for i, part := range targetParts {
+		if strings.HasPrefix(part, "{") && strings.HasSuffix(part, "}") {
+			paramName := strings.Trim(part, "{}")
+			if value, exists := paramMap[paramName]; exists {
+				result[i] = value
+			} else {
+				result[i] = part // Keep original if no mapping found
+			}
+		} else {
+			result[i] = part
+		}
+	}
+
+	return "/" + strings.Join(result, "/")
+}
+
 func (g *Gateway) proxyRequest(w http.ResponseWriter, r *http.Request, service *types.RegisterRequest) error {
-	// Step 1: Find the matching endpoint
 	endpointKey := strings.TrimPrefix(r.URL.Path, service.BaseUrl)
-	log.Println(r.URL.Path)
-	log.Println(service.UrlPrefix)
-	log.Println(endpointKey)
-	endpoint, exists := service.Mapping[endpointKey]
+	log.Printf("Request path: %s, Endpoint key: %s", r.URL.Path, endpointKey)
+
+	var matchedEndpoint types.Endpoint
+	var exists bool
+	var foundPattern string
+
+	for pattern, endpoint := range service.Mapping {
+		if match := g.matchDynamicPath(endpointKey, pattern); match != nil {
+			matchedEndpoint = endpoint
+			exists = true
+			foundPattern = pattern
+			// Replace dynamic parts in the target URL
+			endpointKey = g.replaceDynamicParts(matchedEndpoint.Url, pattern, endpointKey)
+			break
+		}
+	}
+	_ = foundPattern
+
 	if !exists {
 		http.Error(w, "Endpoint not found", http.StatusNotFound)
 		return fmt.Errorf("endpoint %s not found in service %s", endpointKey, service.Name)
 	}
 
-	/*	// Step 2: Validate permissions
-		userRole := r.Header.Get("Role") // Assuming the user's role is provided in the headers
-		if !g.validatePermission(endpoint.PermissionList, userRole, service.Name, endpointKey) {
-			http.Error(w, "Forbidden", http.StatusForbidden)
-			return fmt.Errorf("user does not have permission for %s:%s", service.Name, endpointKey)
-		}
-	*/
-	// Step 3: Construct the target URL
-	targetURL := fmt.Sprintf("http://%s:%s%s%s", service.Host, service.Port, service.UrlPrefix, endpoint.Url)
+	targetURL := fmt.Sprintf("http://%s:%s%s%s",
+		service.Host,
+		service.Port,
+		service.UrlPrefix,
+		endpointKey)
 
-	// Step 4: Create the proxy request
+	log.Printf("Proxying to: %s", targetURL)
 	req, err := http.NewRequest(r.Method, targetURL, r.Body)
 	if err != nil {
 		log.Printf("Error creating request: %v", err)
 		return err
 	}
 
-	// Step 5: Copy headers from the original request
 	for key, values := range r.Header {
 		for _, value := range values {
 			req.Header.Add(key, value)
 		}
 	}
 
-	// Step 6: Add custom headers from the service
 	for key, value := range service.Headers {
 		req.Header.Set(key, value.(string)) // Assuming the value is a string
 	}
 
-	// Step 7: Perform the request
 	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -132,7 +191,6 @@ func (g *Gateway) proxyRequest(w http.ResponseWriter, r *http.Request, service *
 	}
 	defer resp.Body.Close()
 
-	// Step 8: Copy the response back to the client
 	for key, values := range resp.Header {
 		for _, value := range values {
 			w.Header().Add(key, value)
@@ -142,7 +200,6 @@ func (g *Gateway) proxyRequest(w http.ResponseWriter, r *http.Request, service *
 	_, err = io.Copy(w, resp.Body)
 	return err
 }
-
 func (g *Gateway) validatePermission(permissionList map[string]any, userRole string, serviceName string, endpointKey string) bool {
 	if userRole == "" {
 		log.Printf("Missing user role in request")
