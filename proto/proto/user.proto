@@ -7,11 +7,12 @@ message User {
   string uuid = 2;
   string first_name = 3;
   string last_name = 4;
+  string phone = 5;
+  string password = 6;
 }
 
 message CreateUserResponse {
-  uint64 status = 1;
-  string message = 2;
+  User user = 1;
 }
 
 message BlockUserRequest {
@@ -42,11 +43,17 @@ message GetUserByUUIDResponse {
   User user = 1;
 }
 
-message DeleteUserRequest {
+message DeleteUserByIDRequest {
   uint64 user_id = 1;
 }
 
-message DeleteUserResponse {}
+message DeleteUserByIDResponse {}
+
+message DeleteUserByUUIDRequest {
+  string uuid = 1;
+}
+
+message DeleteUserByUUIDResponse {}
 
 message AssignRoleRequest {
   uint64 user_id = 1;
@@ -63,22 +70,31 @@ message CancelRoleRequest {
 message CancelRoleResponse {}
 
 message AssignPermissionRequest {
-  string role = 1;
-  repeated string permissions = 2;
+  uint64 user_id = 1;
+  string role = 2;
+  repeated string permissions = 3;
 }
 
 message AssignPermissionResponse {}
 
 message RevokePermissionRequest {
-  string role = 1;
-  repeated string permissions = 2;
+  uint64 user_id = 1;
+  string role = 2;
+  repeated string permissions = 3;
 }
 
 message RevokePermissionResponse {}
 
+enum TypeStatementAction {
+  StatementActionUnknown = 0;
+
+  StatementActionAllow = 1;
+  StatementActionDeny = 2;
+}
+
 message PublishStatementRequest {
   repeated uint64 user_ids = 1;
-  string action = 2;
+  TypeStatementAction action = 2;
   repeated string permissions = 3;
 }
 
@@ -106,7 +122,8 @@ service UserService {
   rpc UnblockUser(UnblockUserRequest) returns (UnblockUserResponse);
   rpc GetUserByID(GetUserByIDRequest) returns (GetUserByIDResponse);
   rpc GetUserByUUID(GetUserByUUIDRequest) returns (GetUserByUUIDResponse);
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+  rpc DeleteUserByID(DeleteUserByIDRequest) returns (DeleteUserByIDResponse);
+  rpc DeleteUserByUUID(DeleteUserByUUIDRequest) returns (DeleteUserByUUIDResponse);
   rpc AssignRole(AssignRoleRequest) returns (AssignRoleResponse);
   rpc CancelRole(CancelRoleRequest) returns (CancelRoleResponse);
   rpc AssignPermission(AssignPermissionRequest) returns (AssignPermissionResponse);

@@ -24,7 +24,8 @@ const (
 	UserService_UnblockUser_FullMethodName      = "/UserService/UnblockUser"
 	UserService_GetUserByID_FullMethodName      = "/UserService/GetUserByID"
 	UserService_GetUserByUUID_FullMethodName    = "/UserService/GetUserByUUID"
-	UserService_DeleteUser_FullMethodName       = "/UserService/DeleteUser"
+	UserService_DeleteUserByID_FullMethodName   = "/UserService/DeleteUserByID"
+	UserService_DeleteUserByUUID_FullMethodName = "/UserService/DeleteUserByUUID"
 	UserService_AssignRole_FullMethodName       = "/UserService/AssignRole"
 	UserService_CancelRole_FullMethodName       = "/UserService/CancelRole"
 	UserService_AssignPermission_FullMethodName = "/UserService/AssignPermission"
@@ -43,7 +44,8 @@ type UserServiceClient interface {
 	UnblockUser(ctx context.Context, in *UnblockUserRequest, opts ...grpc.CallOption) (*UnblockUserResponse, error)
 	GetUserByID(ctx context.Context, in *GetUserByIDRequest, opts ...grpc.CallOption) (*GetUserByIDResponse, error)
 	GetUserByUUID(ctx context.Context, in *GetUserByUUIDRequest, opts ...grpc.CallOption) (*GetUserByUUIDResponse, error)
-	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
+	DeleteUserByID(ctx context.Context, in *DeleteUserByIDRequest, opts ...grpc.CallOption) (*DeleteUserByIDResponse, error)
+	DeleteUserByUUID(ctx context.Context, in *DeleteUserByUUIDRequest, opts ...grpc.CallOption) (*DeleteUserByUUIDResponse, error)
 	AssignRole(ctx context.Context, in *AssignRoleRequest, opts ...grpc.CallOption) (*AssignRoleResponse, error)
 	CancelRole(ctx context.Context, in *CancelRoleRequest, opts ...grpc.CallOption) (*CancelRoleResponse, error)
 	AssignPermission(ctx context.Context, in *AssignPermissionRequest, opts ...grpc.CallOption) (*AssignPermissionResponse, error)
@@ -111,10 +113,20 @@ func (c *userServiceClient) GetUserByUUID(ctx context.Context, in *GetUserByUUID
 	return out, nil
 }
 
-func (c *userServiceClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error) {
+func (c *userServiceClient) DeleteUserByID(ctx context.Context, in *DeleteUserByIDRequest, opts ...grpc.CallOption) (*DeleteUserByIDResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DeleteUserResponse)
-	err := c.cc.Invoke(ctx, UserService_DeleteUser_FullMethodName, in, out, cOpts...)
+	out := new(DeleteUserByIDResponse)
+	err := c.cc.Invoke(ctx, UserService_DeleteUserByID_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceClient) DeleteUserByUUID(ctx context.Context, in *DeleteUserByUUIDRequest, opts ...grpc.CallOption) (*DeleteUserByUUIDResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteUserByUUIDResponse)
+	err := c.cc.Invoke(ctx, UserService_DeleteUserByUUID_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +212,8 @@ type UserServiceServer interface {
 	UnblockUser(context.Context, *UnblockUserRequest) (*UnblockUserResponse, error)
 	GetUserByID(context.Context, *GetUserByIDRequest) (*GetUserByIDResponse, error)
 	GetUserByUUID(context.Context, *GetUserByUUIDRequest) (*GetUserByUUIDResponse, error)
-	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
+	DeleteUserByID(context.Context, *DeleteUserByIDRequest) (*DeleteUserByIDResponse, error)
+	DeleteUserByUUID(context.Context, *DeleteUserByUUIDRequest) (*DeleteUserByUUIDResponse, error)
 	AssignRole(context.Context, *AssignRoleRequest) (*AssignRoleResponse, error)
 	CancelRole(context.Context, *CancelRoleRequest) (*CancelRoleResponse, error)
 	AssignPermission(context.Context, *AssignPermissionRequest) (*AssignPermissionResponse, error)
@@ -233,8 +246,11 @@ func (UnimplementedUserServiceServer) GetUserByID(context.Context, *GetUserByIDR
 func (UnimplementedUserServiceServer) GetUserByUUID(context.Context, *GetUserByUUIDRequest) (*GetUserByUUIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserByUUID not implemented")
 }
-func (UnimplementedUserServiceServer) DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
+func (UnimplementedUserServiceServer) DeleteUserByID(context.Context, *DeleteUserByIDRequest) (*DeleteUserByIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUserByID not implemented")
+}
+func (UnimplementedUserServiceServer) DeleteUserByUUID(context.Context, *DeleteUserByUUIDRequest) (*DeleteUserByUUIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUserByUUID not implemented")
 }
 func (UnimplementedUserServiceServer) AssignRole(context.Context, *AssignRoleRequest) (*AssignRoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssignRole not implemented")
@@ -368,20 +384,38 @@ func _UserService_GetUserByUUID_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteUserRequest)
+func _UserService_DeleteUserByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteUserByIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).DeleteUser(ctx, in)
+		return srv.(UserServiceServer).DeleteUserByID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_DeleteUser_FullMethodName,
+		FullMethod: UserService_DeleteUserByID_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).DeleteUser(ctx, req.(*DeleteUserRequest))
+		return srv.(UserServiceServer).DeleteUserByID(ctx, req.(*DeleteUserByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserService_DeleteUserByUUID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteUserByUUIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).DeleteUserByUUID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_DeleteUserByUUID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).DeleteUserByUUID(ctx, req.(*DeleteUserByUUIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -540,8 +574,12 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserService_GetUserByUUID_Handler,
 		},
 		{
-			MethodName: "DeleteUser",
-			Handler:    _UserService_DeleteUser_Handler,
+			MethodName: "DeleteUserByID",
+			Handler:    _UserService_DeleteUserByID_Handler,
+		},
+		{
+			MethodName: "DeleteUserByUUID",
+			Handler:    _UserService_DeleteUserByUUID_Handler,
 		},
 		{
 			MethodName: "AssignRole",

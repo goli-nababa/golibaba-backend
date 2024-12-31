@@ -43,14 +43,9 @@ func (us *userServiceClient) CreateUser(user *pb.User) (*pb.CreateUserResponse, 
 	response, err := us.client.CreateUser(context.Background(), user)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
-
-	if response.Status == 409 {
-		return nil, ErrUserExists
-	}
-
-	return response, nil
+	return response.User, nil
 }
 
 func (us *userServiceClient) BlockUser(userID common.UserID) error {
@@ -90,7 +85,16 @@ func (us *userServiceClient) GetUserByUUID(userUUID uuid.UUID) (*pb.User, error)
 }
 
 func (us *userServiceClient) DeleteUserByID(userID common.UserID) error {
-	_, err := us.client.DeleteUser(context.Background(), &pb.DeleteUserRequest{UserId: uint64(userID)})
+	_, err := us.client.DeleteUserByID(context.Background(), &pb.DeleteUserByIDRequest{UserId: uint64(userID)})
+	if err != nil {
+		return fmt.Errorf("failed to delete user by ID: %w", err)
+	}
+
+	return nil
+}
+
+func (us *userServiceClient) DeleteUserByUUID(userUUID uuid.UUID) error {
+	_, err := us.client.DeleteUserByUUID(context.Background(), &pb.DeleteUserByUUIDRequest{Uuid: userUUID.String()})
 	if err != nil {
 		return fmt.Errorf("failed to delete user by ID: %w", err)
 	}
@@ -116,8 +120,9 @@ func (us *userServiceClient) CancelRole(userID common.UserID, role string) error
 	return nil
 }
 
-func (us *userServiceClient) AssignPermissionToRole(role string, permissions []string) error {
+func (us *userServiceClient) AssignPermissionToRole(userID common.UserID, role string, permissions []string) error {
 	_, err := us.client.AssignPermission(context.Background(), &pb.AssignPermissionRequest{
+		UserId:      uint64(userID),
 		Role:        role,
 		Permissions: permissions,
 	})
@@ -128,8 +133,9 @@ func (us *userServiceClient) AssignPermissionToRole(role string, permissions []s
 	return nil
 }
 
-func (us *userServiceClient) RevokePermissionFromRole(role string, permissions []string) error {
+func (us *userServiceClient) RevokePermissionFromRole(userID common.UserID, role string, permissions []string) error {
 	_, err := us.client.RevokePermission(context.Background(), &pb.RevokePermissionRequest{
+		UserId:      uint64(userID),
 		Role:        role,
 		Permissions: permissions,
 	})
@@ -140,7 +146,7 @@ func (us *userServiceClient) RevokePermissionFromRole(role string, permissions [
 	return nil
 }
 
-func (us *userServiceClient) PublishStatement(userIDs []common.UserID, action string, permissions []string) error {
+func (us *userServiceClient) PublishStatement(userIDs []common.UserID, action common.TypeStatementAction, permissions []string) error {
 	var ids []uint64
 	for _, id := range userIDs {
 		ids = append(ids, uint64(id))
@@ -148,7 +154,7 @@ func (us *userServiceClient) PublishStatement(userIDs []common.UserID, action st
 
 	_, err := us.client.PublishStatement(context.Background(), &pb.PublishStatementRequest{
 		UserIds:     ids,
-		Action:      action,
+		Action:      pb.TypeStatementAction(action),
 		Permissions: permissions,
 	})
 	if err != nil {

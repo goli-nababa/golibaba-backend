@@ -43,7 +43,7 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 
-	pb.RegisterUserServiceServer(grpcServer, server.NewUserServiceGRPCApi(appContainer, c))
+	pb.RegisterUserServiceServer(grpcServer, server.NewUserServiceGRPCApi(appContainer))
 
 	log.Println("Registering service to gateway")
 

@@ -4,10 +4,16 @@ import (
 	"context"
 
 	"github.com/goli-nababa/golibaba-backend/common"
+	"github.com/google/uuid"
 )
 
 type Repo interface {
 	Create(ctx context.Context, user *common.User) error
+	GetByID(ctx context.Context, userID common.UserID) (*common.User, error)
+	GetByUUID(ctx context.Context, userUUID uuid.UUID) (*common.User, error)
+	DeleteByID(ctx context.Context, userID common.UserID) error
+	DeleteByUUID(ctx context.Context, userUUID uuid.UUID) error
+
 	Block(ctx context.Context, userId uint) error
 	Unblock(ctx context.Context, userId uint) error
 	AssignRole(ctx context.Context, userId common.UserID, role string) error

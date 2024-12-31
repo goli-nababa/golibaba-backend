@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"user_service/internal/port"
 	"user_service/pkg/adapters/storage/mapper"
@@ -9,6 +10,7 @@ import (
 	storageTypes "user_service/pkg/adapters/storage/types"
 
 	"github.com/goli-nababa/golibaba-backend/common"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -16,11 +18,72 @@ type userRepository struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) *userRepository {
+func NewUserRepository(db *gorm.DB) port.Repo {
 	return &userRepository{db: db}
 }
 
 func (r *userRepository) Create(ctx context.Context, user *common.User) error {
+	storageUser := mapper.UserToStorage(user)
+
+	result := r.db.WithContext(ctx).Create(storageUser)
+	if result.Error != nil {
+		return fmt.Errorf("failed to create user: %w", result.Error)
+	}
+	*user = *mapper.UserFromStorage(storageUser)
+	return nil
+}
+
+func (r *userRepository) GetByID(ctx context.Context, id common.UserID) (*common.User, error) {
+	var user storageTypes.User
+
+	result := r.db.WithContext(ctx).First(&user, id)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get user by id: %w", result.Error)
+	}
+
+	return mapper.UserFromStorage(&user), nil
+}
+
+func (r *userRepository) GetByUUID(ctx context.Context, uuid uuid.UUID) (*common.User, error) {
+	var user storageTypes.User
+
+	result := r.db.WithContext(ctx).Where("uuid = ?", uuid).First(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to get user by uuid: %w", result.Error)
+	}
+
+	return mapper.UserFromStorage(&user), nil
+}
+
+func (r *userRepository) DeleteByID(ctx context.Context, id common.UserID) error {
+	result := r.db.WithContext(ctx).Delete(&storageTypes.User{}, id)
+	if result.Error != nil {
+		return fmt.Errorf("failed to delete user by id: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("user not found: %d", id)
+	}
+
+	return nil
+}
+
+func (r *userRepository) DeleteByUUID(ctx context.Context, uuid uuid.UUID) error {
+	result := r.db.WithContext(ctx).Delete(&storageTypes.User{}, uuid)
+	if result.Error != nil {
+		return fmt.Errorf("failed to delete user by uuid: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("user not found: %d", uuid)
+	}
+
 	return nil
 }
 
