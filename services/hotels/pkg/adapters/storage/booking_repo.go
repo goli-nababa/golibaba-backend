@@ -5,6 +5,7 @@ import (
 	"hotels-service/internal/booking/domain"
 	bookingPort "hotels-service/internal/booking/port"
 	"hotels-service/pkg/adapters/storage/types"
+	"time"
 
 	"github.com/jinzhu/copier"
 
@@ -24,13 +25,16 @@ func NewBookinRepo(db *gorm.DB) bookingPort.Repo {
 func (br *bookingRepo) Create(ctx context.Context, booking domain.Booking) (domain.BookingID, error) {
 	bookingType := new(types.Booking)
 	copier.Copy(bookingType, &booking)
+	bookingType.CreateAt = time.Now()
+	bookingType.UpdatedAt = time.Now()
 	result := br.db.Create(bookingType)
 	return booking.ID, result.Error
 }
 
 func (br *bookingRepo) Delete(ctx context.Context, UUID domain.BookingID) error {
 	booking := new(types.Booking)
-	result := br.db.Delete(&booking, UUID.String())
+	booking.DeletedAt = time.Now()
+	result := br.db.Model(booking).Where("id = ?", UUID.String()).Updates(booking)
 	return result.Error
 }
 func (br *bookingRepo) Get(ctx context.Context, pageIndex uint, pageSize uint, filters ...domain.BookingFilterItem) ([]domain.Booking, error) {
@@ -49,13 +53,14 @@ func (br *bookingRepo) Get(ctx context.Context, pageIndex uint, pageSize uint, f
 func (br *bookingRepo) GetByID(ctx context.Context, UUID domain.BookingID) (*domain.Booking, error) {
 	booking := new(types.Booking)
 	domainBooking := new(domain.Booking)
-	result := br.db.First(&booking, UUID.String())
+	result := br.db.First(booking, UUID.String())
 	copier.Copy(domainBooking, booking)
 	return domainBooking, result.Error
 }
 func (br *bookingRepo) Update(ctx context.Context, UUID domain.BookingID, newData domain.Booking) error {
 	booking := new(types.Booking)
 	copier.Copy(booking, &newData)
-	result := br.db.Model(&booking).Where("id = ?", UUID.String()).Updates(booking)
+	booking.UpdatedAt = time.Now()
+	result := br.db.Model(booking).Where("id = ?", UUID.String()).Updates(booking)
 	return result.Error
 }
