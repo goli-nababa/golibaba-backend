@@ -1,0 +1,213 @@
+syntax = "proto3";
+
+package location.v1;
+
+option go_package = "navigation_service/gen/go/location/v1;locationv1";
+
+import "google/protobuf/timestamp.proto";
+import "location/v1/location.proto";
+
+service RouteService {
+  rpc CreateRoute(CreateRouteRequest) returns (CreateRouteResponse);
+  rpc GetRoute(GetRouteRequest) returns (GetRouteResponse);
+  rpc UpdateRoute(UpdateRouteRequest) returns (UpdateRouteResponse);
+  rpc DeleteRoute(DeleteRouteRequest) returns (DeleteRouteResponse);
+  rpc SearchRoutes(SearchRoutesRequest) returns (SearchRoutesResponse);
+
+
+  rpc CalculateRouteDistance(CalculateRouteRequest) returns (CalculateRouteResponse);
+  rpc GetAvailableRoutes(GetAvailableRoutesRequest) returns (GetAvailableRoutesResponse);
+  rpc ValidateRoute(ValidateRouteRequest) returns (ValidateRouteResponse);
+
+  rpc GetOptimalRoutes(GetOptimalRoutesRequest) returns (stream OptimalRouteResponse);
+  rpc ValidateRouteForTour(ValidateRouteForTourRequest) returns (ValidateRouteForTourResponse);
+
+  rpc GetNearbyLocations(GetNearbyLocationsRequest) returns (GetNearbyLocationsResponse);
+  rpc CalculateDistanceToLocation(CalculateDistanceRequest) returns (CalculateDistanceResponse);
+
+  rpc GetRouteStatistics(GetRouteStatisticsRequest) returns (GetRouteStatisticsResponse);
+  rpc GetPopularRoutes(GetPopularRoutesRequest) returns (GetPopularRoutesResponse);
+}
+
+message ValidateRouteForTourRequest {
+  uint64 route_id = 1;
+  repeated VehicleType vehicle_types = 2;
+  google.protobuf.Timestamp tour_start_time = 3;
+  google.protobuf.Timestamp tour_end_time = 4;
+}
+
+message ValidateRouteForTourResponse {
+  bool is_valid = 1;
+  string validation_message = 2;
+  repeated string validation_errors = 3;
+}
+
+message CalculateRouteRequest {
+  uint64 from_id = 1;
+  uint64 to_id = 2;
+  VehicleType vehicle_type = 3;
+}
+
+message CalculateRouteResponse {
+  double distance = 1;
+  int32 estimated_time = 2; // in minutes
+  double estimated_cost = 3;
+}
+
+message GetAvailableRoutesRequest {
+  uint64 from_id = 1;
+  uint64 to_id = 2;
+  VehicleType vehicle_type = 3;
+  google.protobuf.Timestamp departure_time = 4;
+}
+
+message GetAvailableRoutesResponse {
+  repeated Route routes = 1;
+  int32 total_count = 2;
+}
+
+message ValidateRouteRequest {
+  uint64 route_id = 1;
+  VehicleType vehicle_type = 2;
+  google.protobuf.Timestamp travel_time = 3;
+}
+
+message ValidateRouteResponse {
+  bool is_valid = 1;
+  string error_message = 2;
+}
+
+message GetOptimalRoutesRequest {
+  uint64 from_id = 1;
+  uint64 to_id = 2;
+  repeated VehicleType allowed_vehicle_types = 3;
+  int32 max_alternatives = 4;
+}
+
+message OptimalRouteResponse {
+  Route route = 1;
+  double efficiency_score = 2;
+  string optimization_criteria = 3;
+}
+
+message GetNearbyLocationsRequest {
+  uint64 location_id = 1;
+  double radius_km = 2;
+  LocationType location_type = 3;
+}
+
+message GetNearbyLocationsResponse {
+  repeated Location locations = 1;
+  map<uint64, double> distances = 2; // location_id -> distance_km
+}
+
+message CalculateDistanceRequest {
+  uint64 from_id = 1;
+  uint64 to_id = 2;
+}
+
+message CalculateDistanceResponse {
+  double distance_km = 1;
+  double estimated_time_minutes = 2;
+}
+
+message GetRouteStatisticsRequest {
+  google.protobuf.Timestamp start_time = 1;
+  google.protobuf.Timestamp end_time = 2;
+  VehicleType vehicle_type = 3;
+}
+
+message GetRouteStatisticsResponse {
+  int32 total_routes = 1;
+  double total_distance = 2;
+  map<string, int32> routes_by_vehicle_type = 3;
+  repeated PopularRoute most_popular_routes = 4;
+}
+
+message GetPopularRoutesRequest {
+  int32 limit = 1;
+  VehicleType vehicle_type = 2;
+  google.protobuf.Timestamp time_period = 3;
+}
+
+message GetPopularRoutesResponse {
+  repeated PopularRoute routes = 1;
+}
+
+message PopularRoute {
+  Route route = 1;
+  int32 usage_count = 2;
+  double average_rating = 3;
+}
+
+enum VehicleType {
+  AIRPLANE = 0;
+  BUS = 1;
+  TRAIN = 2;
+  SHIP = 3;
+}
+
+message Route {
+  uint64 id = 1;
+  string uuid = 2;
+  string code = 3;
+  uint64 from_id = 4;
+  uint64 to_id = 5;
+  double distance = 6;
+  repeated VehicleType vehicle_types = 7;
+  bool active = 8;
+  int64 created_at = 9;
+  int64 updated_at = 10;
+}
+
+message CreateRouteRequest {
+  string code = 1;
+  uint64 from_id = 2;
+  uint64 to_id = 3;
+  repeated VehicleType vehicle_types = 4;
+}
+
+message CreateRouteResponse {
+  Route route = 1;
+}
+
+message GetRouteRequest {
+  uint64 id = 1;
+}
+
+message GetRouteResponse {
+  Route route = 1;
+}
+
+message UpdateRouteRequest {
+  uint64 id = 1;
+  string code = 2;
+  uint64 from_id = 3;
+  uint64 to_id = 4;
+  repeated VehicleType vehicle_types = 5;
+  bool active = 6;
+}
+
+message UpdateRouteResponse {
+  Route route = 1;
+}
+
+message DeleteRouteRequest {
+  uint64 id = 1;
+}
+
+message DeleteRouteResponse {}
+
+message SearchRoutesRequest {
+  uint64 from_id = 1;
+  uint64 to_id = 2;
+  VehicleType vehicle_type = 3;
+  bool active_only = 4;
+  int32 page_size = 5;
+  int32 page_number = 6;
+}
+
+message SearchRoutesResponse {
+  repeated Route routes = 1;
+  int32 total_count = 2;
+}

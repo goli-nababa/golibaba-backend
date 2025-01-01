@@ -1,10 +1,10 @@
 version: v1
 plugins:
   - plugin: go
-    out: ../pb/bank
+    out: ../pb/buf
     opt:
       - paths=source_relative
   - plugin: go-grpc
-    out: ../pb/bank
+    out: ../pb/buf
     opt:
       - paths=source_relative
