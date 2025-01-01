@@ -1,0 +1,46 @@
+{
+  "db": {
+    "host": "192.168.1.10",
+    "port": 5432,
+    "user": "admin",
+    "pass": "41524152sjd_B",
+    "name": "goli_vehicles",
+    "schema": "public"
+  },
+  "server": {
+    "port": 8083,
+    "host": "192.168.1.10"
+  },
+  "redis": {
+    "host": "golibaba-redis",
+    "port": 6379
+  },
+  "logging": {
+    "filePath": "app/logs",
+    "encoding": "json",
+    "level": "debug",
+    "logger": "zap"
+  },
+  "message_queue":{
+    "rabbit_mq_host":"192.168.1.10",
+    "rabbit_mq_port":"5672",
+    "rabbit_mq_username":"guest",
+    "rabbit_mq_password":"guest",
+    "vehicle_request_queue_name":"vehicle_requests"
+  },
+  "service_info": {
+    "name": "transportation_service",
+    "version": "v1",
+    "url_prefix": "/api/v1",
+    "base_url": "/v1/transportation_service",
+    "heart_beat": {
+      "url": "/health",
+      "ttl": 5
+    }
+  },
+  "services": {
+    "gateway": "http://192.168.1.10:8080",
+    "transportation_host":"127.0.0.1",
+    "transportation_port":"8082"
+  }
+}

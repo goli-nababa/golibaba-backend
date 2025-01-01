@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "github.com/goli-nababa/golibaba-backend/proto";
+
+
+message TripVehicle {
+    uint64 trip_id = 1;
+    uint64 vehicle_id = 2;
+    uint64 vehicle_speed = 3;
+}
+  
+
+message TripVehicleResponse {
+    bool success = 1 ;
+}
+  
+service TripService {
+    rpc SetVehicle(TripVehicle) returns (TripVehicleResponse);
+}
