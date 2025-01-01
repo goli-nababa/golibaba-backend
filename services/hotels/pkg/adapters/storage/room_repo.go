@@ -26,13 +26,13 @@ func (r *roomRepo) Create(ctx context.Context, newRecord domain.Room) (domain.Ro
 	copier.Copy(room, &newRecord)
 	room.CreateAt = time.Now()
 	room.UpdateAt = time.Now()
-	result := r.db.Create(room)
+	result := r.db.WithContext(ctx).Create(room)
 	return newRecord.ID, result.Error
 }
 func (r *roomRepo) GetByID(ctx context.Context, UUID domain.RoomID) (*domain.Room, error) {
 	roomDomain := new(domain.Room)
 	room := new(types.Room)
-	result := r.db.First(room, UUID)
+	result := r.db.WithContext(ctx).First(room, UUID)
 	copier.Copy(roomDomain, room)
 	return roomDomain, result.Error
 }
@@ -42,9 +42,9 @@ func (r *roomRepo) Get(ctx context.Context, pageIndex, pageSize uint, filter ...
 	roomDomain := new([]domain.Room)
 	offset := (pageIndex - 1) * pageSize
 	if len(filter) > 0 {
-		result = r.db.Limit(int(pageSize)).Offset(int(offset)).Where(&filter[0]).Find(rooms)
+		result = r.db.WithContext(ctx).Limit(int(pageSize)).Offset(int(offset)).Where(&filter[0]).Find(rooms)
 	} else {
-		result = r.db.Limit(int(pageSize)).Offset(int(offset)).Where(&filter[0]).Find(rooms)
+		result = r.db.WithContext(ctx).Limit(int(pageSize)).Offset(int(offset)).Where(&filter[0]).Find(rooms)
 
 	}
 	copier.Copy(roomDomain, rooms)
@@ -54,12 +54,12 @@ func (r *roomRepo) Update(ctx context.Context, UUID domain.RoomID, newRecord dom
 	room := new(types.Room)
 	copier.Copy(room, &newRecord)
 	room.UpdateAt = time.Now()
-	result := r.db.Model(&room).Where("id = ?", UUID.String()).Updates(room)
+	result := r.db.WithContext(ctx).Model(&room).Where("id = ?", UUID.String()).Updates(room)
 	return result.Error
 }
 func (r *roomRepo) Delete(ctx context.Context, UUID domain.RoomID) error {
 	room := new(types.Room)
 	room.DeletedAt = time.Now()
-	result := r.db.Model(room).Where("id=?", UUID.String()).Updates(room)
+	result := r.db.WithContext(ctx).Model(room).Where("id=?", UUID.String()).Updates(room)
 	return result.Error
 }

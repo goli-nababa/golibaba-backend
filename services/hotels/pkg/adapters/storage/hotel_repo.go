@@ -27,14 +27,14 @@ func (hr *hotelRepo) Create(ctx context.Context, newRecord domain.Hotel) (domain
 	copier.Copy(hotel, &newRecord)
 	hotel.CreatedAt = time.Now()
 	hotel.UpdateAt = time.Now()
-	result := hr.db.Create(hotel)
+	result := hr.db.WithContext(ctx).Create(hotel)
 	return newRecord.ID, result.Error
 }
 
 func (hr *hotelRepo) Delete(ctx context.Context, UUID domain.HotelID) error {
 	hotel := new(types.Hotel)
 	hotel.DeletedAt = time.Now()
-	result := hr.db.Model(hotel).Where("id=?", UUID.String()).Updates(hotel)
+	result := hr.db.WithContext(ctx).Model(hotel).Where("id=?", UUID.String()).Updates(hotel)
 	return result.Error
 }
 func (hr *hotelRepo) Get(ctx context.Context, pageIndex uint, pageSize uint, filters ...domain.HotelFilterItem) ([]domain.Hotel, error) {
@@ -43,9 +43,9 @@ func (hr *hotelRepo) Get(ctx context.Context, pageIndex uint, pageSize uint, fil
 	hotel := new([]types.Hotel)
 	offset := (pageIndex - 1) * pageSize
 	if len(filters) > 0 {
-		result = hr.db.Limit(int(pageSize)).Offset(int(offset)).Where(&filters[0]).Find(hotel)
+		result = hr.db.WithContext(ctx).Limit(int(pageSize)).Offset(int(offset)).Where(&filters[0]).Find(hotel)
 	} else {
-		result = hr.db.Limit(int(pageSize)).Offset(int(offset)).Find(hotel)
+		result = hr.db.WithContext(ctx).Limit(int(pageSize)).Offset(int(offset)).Find(hotel)
 	}
 	copier.Copy(domainHotels, hotel)
 	return *domainHotels, result.Error
@@ -53,7 +53,7 @@ func (hr *hotelRepo) Get(ctx context.Context, pageIndex uint, pageSize uint, fil
 func (hr *hotelRepo) GetByID(ctx context.Context, UUID domain.HotelID) (*domain.Hotel, error) {
 	hotel := new(types.Hotel)
 	domainHotel := new(domain.Hotel)
-	result := hr.db.First(&hotel, UUID.String())
+	result := hr.db.WithContext(ctx).First(&hotel, UUID.String())
 	copier.Copy(domainHotel, hotel)
 	return domainHotel, result.Error
 }
@@ -61,6 +61,6 @@ func (hr *hotelRepo) Update(ctx context.Context, UUID domain.HotelID, newRecord 
 	hotel := new(types.Hotel)
 	copier.Copy(hotel, &newRecord)
 	hotel.UpdateAt = time.Now()
-	result := hr.db.Model(&hotel).Where("id = ?", UUID.String()).Updates(hotel)
+	result := hr.db.WithContext(ctx).Model(&hotel).Where("id = ?", UUID.String()).Updates(hotel)
 	return result.Error
 }

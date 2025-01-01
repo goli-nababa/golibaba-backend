@@ -2,26 +2,33 @@ package postgress
 
 import (
 	"fmt"
-
-	PostgresDrive "gorm.io/driver/postgres"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
-type DBOpt struct {
-	Host     string
-	Port     uint
-	User     string
-	Password string
-	DBName   string
-	SSLMode  string
-	Schema   string
+type DBConnOptions struct {
+	User   string
+	Pass   string
+	Host   string
+	Port   uint
+	Name   string
+	Schema string
 }
 
-func (db *DBOpt) dsn() string {
-	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s search_path=%s sslmode=%s",
-		db.Host, db.Port, db.User, db.Password, db.DBName, db.Schema, db.SSLMode)
+func (o DBConnOptions) PostgresDSN() string {
+	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s search_path=%s sslmode=disable",
+		o.Host, o.Port, o.User, o.Pass, o.Name, o.Schema)
 }
 
-func NewConnection(psg DBOpt) (*gorm.DB, error) {
-	return gorm.Open(PostgresDrive.Open(psg.dsn()), &gorm.Config{})
+func NewPsqlGormConnection(opt DBConnOptions) (*gorm.DB, error) {
+	db, err := gorm.Open(postgres.Open(opt.PostgresDSN()), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Error),
+	})
+
+	if err != nil {
+		return db, err
+	}
+
+	return db, nil
 }
