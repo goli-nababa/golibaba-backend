@@ -13,6 +13,6 @@ type Booking struct {
 	TotalPrice   float64
 	Status       uint8
 	CreateAt     time.Time
-	updatedAt    time.Time
+	UpdatedAt    time.Time
 	DeletedAt    time.Time
 }
