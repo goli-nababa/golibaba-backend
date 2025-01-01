@@ -13,8 +13,8 @@ type UserServiceClient interface {
 
 	GetUserByID(userID common.UserID) (*pb.User, error)
 	GetUserByUUID(userID uuid.UUID) (*pb.User, error)
-	DeleteUserByID(userID common.UserID) (*pb.User, error)
-	DeleteUserByUUID(userID uuid.UUID) (*pb.User, error)
+	DeleteUserByID(userID common.UserID) error
+	DeleteUserByUUID(userID common.UserID) error
 
 	AssignRole(userID common.UserID, role string) error
 	CancelRole(userID common.UserID, role string) error
