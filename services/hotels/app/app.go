@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+	"fmt"
+	"github.com/goli-nababa/golibaba-backend/modules/user_service_client"
 	"hotels-service/config"
 	"hotels-service/internal/booking"
 	bookingPort "hotels-service/internal/booking/port"
@@ -11,6 +13,7 @@ import (
 	ratePort "hotels-service/internal/rate/port"
 	"hotels-service/internal/room"
 	roomPort "hotels-service/internal/room/port"
+	"hotels-service/pkg/adapters/migrations"
 	"hotels-service/pkg/adapters/storage"
 	appCtx "hotels-service/pkg/context"
 	"hotels-service/pkg/postgress"
@@ -19,38 +22,61 @@ import (
 )
 
 type app struct {
-	db             *gorm.DB
-	cfg            config.Config
-	bookingService bookingPort.Service
-	hotelService   hotelPort.Service
-	rateService    ratePort.Service
-	roomService    roomPort.Service
+	db                *gorm.DB
+	cfg               config.Config
+	bookingService    bookingPort.Service
+	hotelService      hotelPort.Service
+	rateService       ratePort.Service
+	roomService       roomPort.Service
+	userServiceClient user_service_client.UserServiceClient
 }
 
-func AppNew(cfg config.Config) (App, error) {
-	a := &app{
-		cfg: cfg,
+func (a *app) UserServiceClient() user_service_client.UserServiceClient {
+	return a.userServiceClient
+}
+
+func NewApp(cfg config.Config) (App, error) {
+	userClient, err := user_service_client.NewUserServiceClient(
+		cfg.UserService.URL,
+		cfg.UserService.Version,
+		uint64(cfg.UserService.Port),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize user service client: %w", err)
 	}
+
+	a := &app{
+		cfg:               cfg,
+		userServiceClient: userClient,
+	}
+
+	if err := a.setDB(); err != nil {
+		return nil, err
+	}
+
 	return a, nil
 }
 
 func (a *app) setDB() error {
-	db, err := postgress.NewConnection(postgress.DBOpt{
-		Host:     a.cfg.Database.Host,
-		Port:     a.cfg.Database.Port,
-		User:     a.cfg.Database.User,
-		Password: a.cfg.Database.Password,
-		DBName:   a.cfg.Database.DBName,
-		SSLMode:  a.cfg.Database.SSLMode,
-		Schema:   a.cfg.Database.Schema,
+	db, err := postgress.NewPsqlGormConnection(postgress.DBConnOptions{
+		Host:   a.cfg.Database.Host,
+		Port:   a.cfg.Database.Port,
+		User:   a.cfg.Database.User,
+		Pass:   a.cfg.Database.Password,
+		Name:   a.cfg.Database.Database,
+		Schema: a.cfg.Database.Schema,
 	})
-
 	if err != nil {
-		return nil
+		return fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	// Run migrations
+	migrationManager := migrations.NewManager(db)
+	if err := migrationManager.RunMigrations(); err != nil {
+		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
 	a.db = db
-
 	return nil
 }
 

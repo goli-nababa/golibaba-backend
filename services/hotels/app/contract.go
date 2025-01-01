@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"github.com/goli-nababa/golibaba-backend/modules/user_service_client"
 	"hotels-service/config"
 	bookingPort "hotels-service/internal/booking/port"
 	hotelPort "hotels-service/internal/hotel/port"
@@ -18,4 +19,5 @@ type App interface {
 	HotelService(ctx context.Context) hotelPort.Service
 	RateService(ctx context.Context) RateService.Service
 	RoomService(ctx context.Context) RoomService.Service
+	UserServiceClient() user_service_client.UserServiceClient
 }
