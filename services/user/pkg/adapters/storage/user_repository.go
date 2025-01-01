@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"user_service/pkg/adapters/storage/mapper"
 
+	"user_service/internal/domain"
+
 	storageTypes "user_service/pkg/adapters/storage/types"
 
 	"github.com/go-gormigrate/gormigrate/v2"
@@ -273,8 +275,32 @@ func (r *userRepo) CheckAccess(ctx context.Context, userID common.UserID, permis
 	return false, nil
 }
 
+func (r *userRepository) ListNotif(ctx context.Context, userId uint) ([]domain.Notification, error) {
+	var notifications []storageTypes.Notification
+	query := r.db.WithContext(ctx)
+
+	result := query.Where("seen = false AND user_id = ?", userId).Find(&notifications)
+	if result.Error != nil {
+		return nil, fmt.Errorf("failed to list notifications: %w", result.Error)
+	}
+
+	return mapper.NotificationsFromStorage(notifications), nil
+}
+
+func (r *userRepository) CreateNotif(ctx context.Context, notification *domain.Notification) error {
+	storageNotification := mapper.NotificationToStorage(notification)
+	result := r.db.WithContext(ctx).Create(storageNotification)
+	if result.Error != nil {
+		return fmt.Errorf("failed to create location: %w", result.Error)
+	}
+
+	*notification = *mapper.NotificationFromStorage(storageNotification)
+	return nil
+}
+
 func (r *userRepo) Insert(ctx context.Context, user *common.User) (common.UserID, error) {
 	newU := mapper.UserToStorage(user)
 
 	return common.UserID(newU.ID), r.db.WithContext(ctx).Create(newU).Error
 }
+

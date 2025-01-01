@@ -157,3 +157,18 @@ func (s *service) CheckAccess(ctx context.Context, userID common.UserID, permiss
 
 	return hasAccess, nil
 }
+
+func (s *service) GetNotifications(ctx context.Context, userId uint) ([]domain.Notification, error) {
+	locations, err := s.repo.ListNotif(ctx, userId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list notifications: %w", err)
+	}
+	return locations, nil
+}
+
+func (s *service) CreateNotification(ctx context.Context, notification *domain.Notification) error {
+	if err := s.repo.CreateNotif(ctx, notification); err != nil {
+		return fmt.Errorf("failed to create notification: %w", err)
+	}
+	return nil
+}

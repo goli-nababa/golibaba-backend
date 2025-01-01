@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"user_service/internal/domain"
+
 	"github.com/goli-nababa/golibaba-backend/common"
 )
 
@@ -12,6 +14,12 @@ type Repo interface {
 	RunMigrations() error
 	FindByID(ctx context.Context, id common.UserID) (*common.User, error)
 	Update(ctx context.Context, user *common.User) error
+	
+	Create(ctx context.Context, user *common.User) error
+	GetByID(ctx context.Context, userID common.UserID) (*common.User, error)
+	GetByUUID(ctx context.Context, userUUID uuid.UUID) (*common.User, error)
+	DeleteByID(ctx context.Context, userID common.UserID) error
+	DeleteByUUID(ctx context.Context, userUUID uuid.UUID) error
 
 	Block(ctx context.Context, userId uint) error
 	Unblock(ctx context.Context, userId uint) error
@@ -22,4 +30,6 @@ type Repo interface {
 	PublishStatement(ctx context.Context, userIDs []common.UserID, action common.TypeStatementAction, permissions []string) error
 	CancelStatement(ctx context.Context, userIDs common.UserID, statementID common.StatementID) error
 	CheckAccess(ctx context.Context, userID common.UserID, permissions []string) (bool, error)
+	ListNotif(ctx context.Context, userId uint) ([]domain.Notification, error)
+	CreateNotif(ctx context.Context, notification *domain.Notification) error
 }
