@@ -11,7 +11,7 @@ type rateService struct {
 	repo port.Repo
 }
 
-func NewRateService(repo port.Repo) port.Service {
+func NewService(repo port.Repo) port.Service {
 	return &rateService{
 		repo: repo,
 	}

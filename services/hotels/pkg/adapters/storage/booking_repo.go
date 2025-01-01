@@ -16,7 +16,7 @@ type bookingRepo struct {
 	db *gorm.DB
 }
 
-func NewBookinRepo(db *gorm.DB) bookingPort.Repo {
+func NewBookingRepo(db *gorm.DB) bookingPort.Repo {
 	return &bookingRepo{
 		db: db,
 	}
