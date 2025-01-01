@@ -45,7 +45,7 @@ func (us *userServiceClient) CreateUser(user *pb.User) (*pb.CreateUserResponse, 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
-	return response.User, nil
+	return response, nil
 }
 
 func (us *userServiceClient) BlockUser(userID common.UserID) error {
