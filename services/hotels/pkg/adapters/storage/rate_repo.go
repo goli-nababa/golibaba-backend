@@ -3,7 +3,7 @@ package storage
 import (
 	"context"
 	"hotels-service/internal/rate/domain"
-	"hotels-service/internal/rate/port"
+	ratePort "hotels-service/internal/rate/port"
 	"hotels-service/pkg/adapters/storage/types"
 	"time"
 
@@ -15,19 +15,19 @@ type rateRepo struct {
 	db *gorm.DB
 }
 
-func NewRateRepo(db *gorm.DB) port.Repo {
+func NewRateRepo(db *gorm.DB) ratePort.Repo {
 	return &rateRepo{
 		db: db,
 	}
 }
 
-func (r *rateRepo) Create(ctx context.Context, rate domain.Rate) (domain.RateID, error) {
-	rateType := new(types.Rate)
-	copier.Copy(rateType, &rate)
-	rateType.CreateAt = time.Now()
-	rateType.UpdateAt = time.Now()
-	result := r.db.Create(rateType)
-	return rate.ID, result.Error
+func (r *rateRepo) Create(ctx context.Context, newRecord domain.Rate) (domain.RateID, error) {
+	rate := new(types.Rate)
+	copier.Copy(rate, &newRecord)
+	rate.CreateAt = time.Now()
+	rate.UpdateAt = time.Now()
+	result := r.db.Create(rate)
+	return newRecord.ID, result.Error
 }
 func (r *rateRepo) GetByID(ctx context.Context, UUID domain.RateID) (*domain.Rate, error) {
 	rateDomain := new(domain.Rate)
@@ -50,9 +50,9 @@ func (r *rateRepo) Get(ctx context.Context, pageIndex, pageSize uint, filter ...
 	copier.Copy(rateDomain, rates)
 	return *rateDomain, result.Error
 }
-func (r *rateRepo) Update(ctx context.Context, UUID domain.RateID, newData domain.Rate) error {
+func (r *rateRepo) Update(ctx context.Context, UUID domain.RateID, newRecord domain.Rate) error {
 	rate := new(types.Rate)
-	copier.Copy(rate, &newData)
+	copier.Copy(rate, &newRecord)
 	rate.UpdateAt = time.Now()
 	result := r.db.Model(&rate).Where("id = ?", UUID.String()).Updates(rate)
 	return result.Error

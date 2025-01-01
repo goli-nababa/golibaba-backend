@@ -22,19 +22,19 @@ func NewBookinRepo(db *gorm.DB) bookingPort.Repo {
 	}
 }
 
-func (br *bookingRepo) Create(ctx context.Context, booking domain.Booking) (domain.BookingID, error) {
-	bookingType := new(types.Booking)
-	copier.Copy(bookingType, &booking)
-	bookingType.CreateAt = time.Now()
-	bookingType.UpdatedAt = time.Now()
-	result := br.db.Create(bookingType)
-	return booking.ID, result.Error
+func (br *bookingRepo) Create(ctx context.Context, newRecord domain.Booking) (domain.BookingID, error) {
+	book := new(types.Booking)
+	copier.Copy(book, &newRecord)
+	book.CreateAt = time.Now()
+	book.UpdatedAt = time.Now()
+	result := br.db.Create(book)
+	return newRecord.ID, result.Error
 }
 
 func (br *bookingRepo) Delete(ctx context.Context, UUID domain.BookingID) error {
-	booking := new(types.Booking)
-	booking.DeletedAt = time.Now()
-	result := br.db.Model(booking).Where("id = ?", UUID.String()).Updates(booking)
+	book := new(types.Booking)
+	book.DeletedAt = time.Now()
+	result := br.db.Model(book).Where("id = ?", UUID.String()).Updates(book)
 	return result.Error
 }
 func (br *bookingRepo) Get(ctx context.Context, pageIndex uint, pageSize uint, filters ...domain.BookingFilterItem) ([]domain.Booking, error) {
@@ -51,16 +51,16 @@ func (br *bookingRepo) Get(ctx context.Context, pageIndex uint, pageSize uint, f
 	return *domainBookings, result.Error
 }
 func (br *bookingRepo) GetByID(ctx context.Context, UUID domain.BookingID) (*domain.Booking, error) {
-	booking := new(types.Booking)
+	book := new(types.Booking)
 	domainBooking := new(domain.Booking)
-	result := br.db.First(booking, UUID.String())
-	copier.Copy(domainBooking, booking)
+	result := br.db.First(book, UUID.String())
+	copier.Copy(domainBooking, book)
 	return domainBooking, result.Error
 }
-func (br *bookingRepo) Update(ctx context.Context, UUID domain.BookingID, newData domain.Booking) error {
-	booking := new(types.Booking)
-	copier.Copy(booking, &newData)
-	booking.UpdatedAt = time.Now()
-	result := br.db.Model(booking).Where("id = ?", UUID.String()).Updates(booking)
+func (br *bookingRepo) Update(ctx context.Context, UUID domain.BookingID, newRecord domain.Booking) error {
+	book := new(types.Booking)
+	copier.Copy(book, &newRecord)
+	book.UpdatedAt = time.Now()
+	result := br.db.Model(book).Where("id = ?", UUID.String()).Updates(book)
 	return result.Error
 }
