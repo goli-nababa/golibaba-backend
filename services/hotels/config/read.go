@@ -1,39 +1,26 @@
 package config
 
 import (
-	"fmt"
-	"path/filepath"
-
-	"github.com/spf13/viper"
+	"encoding/json"
+	"os"
 )
 
-func absPath(path string) (string, error) {
-	if filepath.IsAbs(path) {
-		return path, nil
-	}
-	return filepath.Abs(path)
-}
-func ReadConfig[T any](configPath string) (T, error) {
-	var config T
+func ReadConfig(path string) (Config, error) {
+	var config Config
 
-	fullPath, err := absPath(configPath)
-	if err != nil {
-		return config, err
-	}
-	viper.SetConfigFile(fullPath)
-	viper.AutomaticEnv()
-	err = viper.ReadInConfig()
+	all, err := os.ReadFile(path)
+
 	if err != nil {
 		return config, err
 	}
 
-	return config, viper.Unmarshal(&config)
+	return config, json.Unmarshal(all, &config)
 }
 
-func MustReadConfig(configPath string) Config {
-	config, err := ReadConfig[Config](configPath)
+func MustReadConfig(path string) Config {
+	config, err := ReadConfig(path)
 	if err != nil {
-		panic(fmt.Errorf("failed to read config :%w", err))
+		panic(err)
 	}
 	return config
 }
