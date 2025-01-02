@@ -1,18 +1,17 @@
-package port
+package user
 
 import (
 	"context"
-
 	"github.com/goli-nababa/golibaba-backend/common"
-	"github.com/google/uuid"
 )
 
 type Repo interface {
-	Create(ctx context.Context, user *common.User) error
-	GetByID(ctx context.Context, userID common.UserID) (*common.User, error)
-	GetByUUID(ctx context.Context, userUUID uuid.UUID) (*common.User, error)
-	DeleteByID(ctx context.Context, userID common.UserID) error
-	DeleteByUUID(ctx context.Context, userUUID uuid.UUID) error
+	FindByUsernamePassword(ctx context.Context, username string, password string) (*common.User, error)
+	FindByEmail(ctx context.Context, email string) (*common.User, error)
+	Insert(ctx context.Context, user *common.User) (common.UserID, error)
+	RunMigrations() error
+	FindByID(ctx context.Context, id common.UserID) (*common.User, error)
+	Update(ctx context.Context, user *common.User) error
 
 	Block(ctx context.Context, userId uint) error
 	Unblock(ctx context.Context, userId uint) error
