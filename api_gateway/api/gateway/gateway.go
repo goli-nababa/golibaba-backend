@@ -3,8 +3,10 @@ package gateway
 import (
 	"api_gateway/api/http/types"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"io"
 	"log"
 	"net/http"
@@ -135,54 +137,86 @@ func (g *Gateway) replaceDynamicParts(targetPattern, sourcePattern, actualPath s
 	return "/" + strings.Join(result, "/")
 }
 
+// proxyRequest handles proxying an incoming HTTP request to the appropriate backend service.
+// Parameters:
+// - w: The HTTP response writer to send the response back to the client.
+// - r: The incoming HTTP request from the client.
+// - service: The backend service configuration where the request should be proxied.
 func (g *Gateway) proxyRequest(w http.ResponseWriter, r *http.Request, service *types.RegisterRequest) error {
+	// Extract the endpoint key by removing the service's base URL from the request path.
 	endpointKey := strings.TrimPrefix(r.URL.Path, service.BaseUrl)
 	log.Printf("Request path: %s, Endpoint key: %s", r.URL.Path, endpointKey)
 
+	// Variables to store the matched endpoint and metadata.
 	var matchedEndpoint types.Endpoint
 	var exists bool
 	var foundPattern string
 
+	// Iterate over all endpoint mappings in the service configuration.
+	// Check if the incoming request matches any endpoint pattern.
 	for pattern, endpoint := range service.Mapping {
+
+		// Use a helper function to match dynamic path patterns (e.g., "/users/{id}").
 		if match := g.matchDynamicPath(endpointKey, pattern); match != nil {
 			matchedEndpoint = endpoint
 			exists = true
 			foundPattern = pattern
-			// Replace dynamic parts in the target URL
+
+			// Replace dynamic path variables with actual values in the target URL.
 			endpointKey = g.replaceDynamicParts(matchedEndpoint.Url, pattern, endpointKey)
 			break
 		}
 	}
 	_ = foundPattern
 
+	// If no matching endpoint is found, return a 404 error to the client.
 	if !exists {
 		http.Error(w, "Endpoint not found", http.StatusNotFound)
 		return fmt.Errorf("endpoint %s not found in service %s", endpointKey, service.Name)
 	}
 
+	// Construct the target URL for the backend service using the service configuration.
 	targetURL := fmt.Sprintf("http://%s:%s%s%s",
-		service.Host,
-		service.Port,
-		service.UrlPrefix,
-		endpointKey)
+		service.Host,      // Backend service host.
+		service.Port,      // Backend service port.
+		service.UrlPrefix, // Optional prefix for the backend URL.
+		endpointKey,       // Adjusted endpoint key.
+	)
 
 	log.Printf("Proxying to: %s", targetURL)
+
+	// Create a new HTTP request to send to the backend service.
 	req, err := http.NewRequest(r.Method, targetURL, r.Body)
 	if err != nil {
 		log.Printf("Error creating request: %v", err)
 		return err
 	}
 
+	headers := make(map[string][]string)
 	for key, values := range r.Header {
+		headers[key] = values
+	}
+
+	modifiedHeaders, err := g.readUserInfo(headers)
+	if err != nil {
+		log.Printf("Error modifying headers: %v", err)
+		http.Error(w, "Error processing headers", http.StatusInternalServerError)
+		return err
+	}
+
+	// Add or override headers specific to the backend service configuration.
+	for key, value := range service.Headers {
+		req.Header.Set(key, value.(string))
+	}
+
+	// Set the modified headers on the proxied request
+	for key, values := range modifiedHeaders {
 		for _, value := range values {
 			req.Header.Add(key, value)
 		}
 	}
 
-	for key, value := range service.Headers {
-		req.Header.Set(key, value.(string)) // Assuming the value is a string
-	}
-
+	// Create an HTTP client with a timeout to send the request.
 	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -191,15 +225,37 @@ func (g *Gateway) proxyRequest(w http.ResponseWriter, r *http.Request, service *
 	}
 	defer resp.Body.Close()
 
-	for key, values := range resp.Header {
-		for _, value := range values {
-			w.Header().Add(key, value)
-		}
-	}
+	// Forward the backend service response status code to the client.
 	w.WriteHeader(resp.StatusCode)
+
+	// Stream the response body from the backend service to the client.
 	_, err = io.Copy(w, resp.Body)
 	return err
 }
+
+func (g *Gateway) readUserInfo(headers map[string][]string) (map[string][]string, error) {
+	requestMeta := make(map[string]string)
+
+	requestMeta["request_id"] = uuid.NewString()
+	requestMeta["trace_id"] = uuid.NewString()
+
+	if authHeaders, ok := headers["Authorization"]; ok && len(authHeaders) > 0 {
+
+	}
+
+	requestMetaString, err := json.Marshal(requestMeta)
+	if err != nil {
+		return nil, err
+	}
+
+	headers["X-User-Meta"] = []string{string(requestMetaString)}
+
+	// Example: Remove a sensitive header
+	delete(headers, "Authorization")
+
+	return headers, nil
+}
+
 func (g *Gateway) validatePermission(permissionList map[string]any, userRole string, serviceName string, endpointKey string) bool {
 	if userRole == "" {
 		log.Printf("Missing user role in request")
