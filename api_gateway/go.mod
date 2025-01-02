@@ -6,6 +6,7 @@ require (
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/goli-nababa/golibaba-backend/modules/cache v0.0.0-00010101000000-000000000000
+	github.com/google/uuid v1.6.0
 )
 
 require (
@@ -15,7 +16,6 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/klauspost/compress v1.17.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -35,4 +35,5 @@ require (
 replace (
 	github.com/goli-nababa/golibaba-backend/common => ../common
 	github.com/goli-nababa/golibaba-backend/modules/cache => ../modules/cache
+	github.com/goli-nababa/golibaba-backend/modules/user_service_client => ../modules/user_service_client
 )
