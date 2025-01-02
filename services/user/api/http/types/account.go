@@ -1,6 +1,9 @@
 package types
 
-import "github.com/google/uuid"
+import (
+	"github.com/goli-nababa/golibaba-backend/common"
+	"github.com/google/uuid"
+)
 
 type LoginRequest struct {
 	Email    string `json:"email" validate:"required,email"`
@@ -31,4 +34,10 @@ type RegisterRequest struct {
 	LastName   string `json:"last_name" validate:"required"`
 	Birthday   string `json:"birthday" validate:"required"`
 	City       string `json:"city"`
+}
+
+type LoginCacheSession struct {
+	SessionID uuid.UUID
+	UserID    common.UserID
+	Code      string
 }

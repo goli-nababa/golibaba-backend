@@ -6,6 +6,7 @@ type Config struct {
 	Redis    RedisConfig       `json:"redis"`
 	Info     ServiceInfo       `json:"service_info"`
 	Services map[string]string `json:"services"`
+	SMTP     SMTPConfig        `json:"smtp"`
 }
 
 type ServiceInfo struct {
@@ -19,6 +20,14 @@ type ServiceInfo struct {
 type HeatBeat struct {
 	Url string `json:"url"`
 	TTL uint   `json:"ttl"`
+}
+
+type SMTPConfig struct {
+	Email    string `json:"email"`
+	Host     string `json:"host"`
+	Port     uint   `json:"port"`
+	User     string `json:"user"`
+	Password string `json:"password"`
 }
 
 type DBConfig struct {

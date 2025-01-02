@@ -10,6 +10,13 @@
   "services": {
     "gateway": "http://golibaba-gateway-app:8080"
   },
+  "smtp": {
+    "email": "info@mail.ir",
+    "host": "gmail.com",
+    "port": 465,
+    "user": "username",
+    "password": "password"
+  },
   "service_info": {
     "name": "sample_service",
     "version": "1.0.0",

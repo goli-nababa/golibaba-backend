@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"regexp"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -45,4 +47,16 @@ func ParseRequestBody[T any](c *fiber.Ctx, body *T) fiber.Map {
 	}
 
 	return nil
+}
+
+// IsValidEmail validates the structure of an email address
+func IsValidEmail(email string) bool {
+	const emailRegex = `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	re := regexp.MustCompile(emailRegex)
+	return re.MatchString(email)
+}
+
+func IsValidDate(date string) (time.Time, error) {
+	const layout = "2006-01-02" // Reference layout for YYYY-MM-DD
+	return time.Parse(layout, date)
 }

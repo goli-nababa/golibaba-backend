@@ -3,39 +3,50 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/goli-nababa/golibaba-backend/modules/cache"
+	"github.com/google/uuid"
+	"log"
+	"strconv"
+	"time"
 	"user_service/api/http/handlers/helpers"
 	"user_service/api/http/types"
 	"user_service/app"
 	"user_service/config"
+	"user_service/pkg/email"
+
+	userService "user_service/internal/user"
+	userPort "user_service/internal/user/port"
+	jwt2 "user_service/pkg/jwt"
 )
 
 var (
-	/*	ErrUserOnCreate      = userService.ErrUserOnCreate
-		ErrUserNotFound      = userService.ErrUserNotFound
-		ErrUserAlreadyExists = userService.ErrUserAlreadyExists*/
-	ErrCreatingToken   = errors.New("cannot create token")
-	ErrBirthdayInvalid = errors.New("birthday is invalid")
+	ErrUserOnCreate      = userService.ErrUserOnCreate
+	ErrUserNotFound      = userService.ErrUserNotFound
+	ErrUserAlreadyExists = userService.ErrUserAlreadyExists
+	ErrCreatingToken     = errors.New("cannot create token")
+	ErrBirthdayInvalid   = errors.New("birthday is invalid")
 )
 
 type AccountService struct {
-	/*	svc                              userPort.Service
-		authCache                        *cache.ObjectCache[*presenter.LoginCacheSession]
-		emailService                     email.Adapter*/
+	svc                              userPort.Service
+	authCache                        *cache.ObjectCache[*types.LoginCacheSession]
+	emailService                     email.Adapter
 	authSecret                       string
 	expMin, refreshExpMin, otpTtlMin uint
 }
 
 func NewAccountService(
-	/*	svc userPort.Service,
-		cacheService cache.Provider,
-		emailService email.Adapter,*/
+	svc userPort.Service,
+	cacheService cache.Provider,
+	emailService email.Adapter,
 	authSecret string,
 	expMin, refreshExpMin, otpTtlMin uint,
 ) *AccountService {
 	return &AccountService{
-		/*		svc:           svc,
-				authCache:     cache.NewJsonObjectCache[*presenter.LoginCacheSession](cacheService, "auth."),
-				emailService:  emailService,*/
+		svc:           svc,
+		authCache:     cache.NewJsonObjectCache[*types.LoginCacheSession](cacheService, "auth."),
+		emailService:  emailService,
 		authSecret:    authSecret,
 		expMin:        expMin,
 		refreshExpMin: refreshExpMin,
@@ -46,9 +57,9 @@ func NewAccountService(
 func AccountServiceGetter(appContainer app.App, cfg config.ServerConfig) helpers.ServiceGetter[*AccountService] {
 	return func(ctx context.Context) *AccountService {
 		return NewAccountService(
-			/*			appContainer.UserService(ctx),
-						appContainer.Cache(),
-						appContainer.MailService(),*/
+			appContainer.UserService(ctx),
+			appContainer.Cache(),
+			appContainer.MailService(),
 			cfg.Secret,
 			cfg.AuthExpirationMinutes,
 			cfg.AuthRefreshMinutes,
@@ -58,56 +69,54 @@ func AccountServiceGetter(appContainer app.App, cfg config.ServerConfig) helpers
 }
 
 func (as *AccountService) Login(c context.Context, req types.LoginRequest) (*types.LoginResponse, error) {
-	/*	user, err := as.svc.GetUserByUsernamePassword(c, req.Email, req.Password)
+	user, err := as.svc.GetUserByUsernamePassword(c, req.Email, req.Password)
 
-		if err != nil {
-			return nil, err
-		}
+	if err != nil {
+		return nil, err
+	}
 
-		code, err := helpers.GenerateOTP()
+	code, err := helpers.GenerateOTP()
 
-		if err != nil {
-			return nil, errors.New("error generating OTP")
-		}
+	if err != nil {
+		return nil, errors.New("error generating OTP")
+	}
 
-		log.Println("OTP sent for user", user.ID, "code:", code)
+	log.Println("OTP sent for user", user.ID, "code:", code)
 
-		err = as.emailService.SendText(
-			req.Email,
-			fmt.Sprintf("GoliPors OTP code for %s", req.Email),
-			fmt.Sprintf("GoliPors OTP code: %s", code),
-		)
+	err = as.emailService.SendText(
+		req.Email,
+		fmt.Sprintf("GoliPors OTP code for %s", req.Email),
+		fmt.Sprintf("GoliPors OTP code: %s", code),
+	)
 
-		if err != nil {
-			log.Println("Error while sending otp:", err)
-		}
+	if err != nil {
+		log.Println("Error while sending otp:", err)
+	}
 
-		reqUUID := uuid.New()
+	reqUUID := uuid.New()
 
-		err = as.authCache.Set(
-			c, strconv.Itoa(int(user.ID)),
-			time.Minute*time.Duration(as.otpTtlMin),
-			&presenter.LoginCacheSession{
-				SessionID: reqUUID,
-				UserID:    user.ID,
-				Code:      code,
-			},
-		)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return &types.LoginResponse{
+	err = as.authCache.Set(
+		c, strconv.Itoa(int(user.ID)),
+		time.Minute*time.Duration(as.otpTtlMin),
+		&types.LoginCacheSession{
+			SessionID: reqUUID,
+			UserID:    user.ID,
 			Code:      code,
-			SessionId: reqUUID,
-		}, nil*/
+		},
+	)
 
-	return nil, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.LoginResponse{
+		Code:      code,
+		SessionId: reqUUID,
+	}, nil
 }
 
 func (as *AccountService) VerifyOtp(c context.Context, req types.VerifyOTPRequest) (*types.VerifyOTPResponse, error) {
-	/*user, err := as.svc.GetUserByEmail(c, req.Email)
+	user, err := as.svc.GetUserByEmail(c, req.Email)
 
 	if err != nil {
 		return nil, err
@@ -148,13 +157,11 @@ func (as *AccountService) VerifyOtp(c context.Context, req types.VerifyOTPReques
 	return &types.VerifyOTPResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-	}, nil*/
-
-	return nil, nil
+	}, nil
 }
 
 func (as *AccountService) Register(c context.Context, req types.RegisterRequest) error {
-	/*newU, err := presenter.RegisterRequestToUserDomain(req)
+	newU, err := presenter.RegisterRequestToUserDomain(req)
 
 	if err != nil {
 		return ErrBirthdayInvalid
@@ -164,7 +171,7 @@ func (as *AccountService) Register(c context.Context, req types.RegisterRequest)
 
 	if err != nil {
 		return err
-	}*/
+	}
 
 	return nil
 }

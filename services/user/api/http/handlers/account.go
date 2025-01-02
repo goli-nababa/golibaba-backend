@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"errors"
 	"github.com/gofiber/fiber/v2"
+	"net/http"
 	"user_service/api/http/handlers/helpers"
 	"user_service/api/http/services"
+	"user_service/api/http/types"
 	"user_service/app"
 	"user_service/config"
 )
@@ -21,7 +24,7 @@ func RegisterAccountHandlers(router fiber.Router, appContainer app.App, cfg conf
 
 func Login(svcGetter helpers.ServiceGetter[*services.AccountService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		/*svc := svcGetter(c.UserContext())
+		svc := svcGetter(c.UserContext())
 		body := new(types.LoginRequest)
 
 		if err := helpers.ParseRequestBody(c, body); err != nil {
@@ -50,15 +53,13 @@ func Login(svcGetter helpers.ServiceGetter[*services.AccountService]) fiber.Hand
 			}
 		}
 
-		return c.JSON(response)*/
-
-		return c.SendString("hi")
+		return c.JSON(response)
 	}
 }
 
 func Register(svcGetter helpers.ServiceGetter[*services.AccountService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		/*svc := svcGetter(c.UserContext())
+		svc := svcGetter(c.UserContext())
 		body := new(types.RegisterRequest)
 
 		if err := helpers.ParseRequestBody(c, body); err != nil {
@@ -117,14 +118,13 @@ func Register(svcGetter helpers.ServiceGetter[*services.AccountService]) fiber.H
 
 		return c.JSON(fiber.Map{
 			"message": "User registered successfully",
-		})*/
-		return nil
+		})
 	}
 }
 
 func VerifyOtp(svcGetter helpers.ServiceGetter[*services.AccountService]) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		/*svc := svcGetter(c.UserContext())
+		svc := svcGetter(c.UserContext())
 		body := new(types.VerifyOTPRequest)
 
 		if err := helpers.ParseRequestBody[*types.VerifyOTPRequest](c, &body); err != nil {
@@ -153,11 +153,9 @@ func VerifyOtp(svcGetter helpers.ServiceGetter[*services.AccountService]) fiber.
 			}
 		}
 
-		return c.JSON(response)*/
-		return nil
+		return c.JSON(response)
 	}
 }
-
 func ResetPassword(svcGetter helpers.ServiceGetter[*services.AccountService]) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		return nil
