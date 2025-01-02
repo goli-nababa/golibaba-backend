@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"user_service/internal/domain"
+	port "user_service/internal/user/port"
+
+	"github.com/google/uuid"
 	"github.com/goli-nababa/golibaba-backend/common"
 	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
-	"log"
-	port "user_service/internal/user/port"
 )
 
 var (
@@ -90,6 +93,28 @@ func (s *service) GetUserByID(ctx context.Context, id common.UserID) (*common.Us
 		return nil, fmt.Errorf("error retrieving user: %w", err)
 	}
 	return user, nil
+}
+
+func (s *service) GetUserByUUID(ctx context.Context, userUUID uuid.UUID) (*common.User, error) {
+	user, err := s.repo.GetByUUID(ctx, userUUID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user by uuid: %w", err)
+	}
+	return user, nil
+}
+
+func (s *service) DeleteUserByID(ctx context.Context, userID common.UserID) error {
+	if err := s.repo.DeleteByID(ctx, userID); err != nil {
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+	return nil
+}
+
+func (s *service) DeleteUserByUUID(ctx context.Context, userUUID uuid.UUID) error {
+	if err := s.repo.DeleteByUUID(ctx, userUUID); err != nil {
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+	return nil
 }
 
 func (s *service) BlockUser(ctx context.Context, userID uint) error {

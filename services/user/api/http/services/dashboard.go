@@ -6,7 +6,7 @@ import (
 	"user_service/app"
 	"user_service/config"
 	"user_service/internal/domain"
-	"user_service/internal/user/port"
+	port "user_service/internal/user/port"
 
 	"github.com/goli-nababa/golibaba-backend/common"
 )

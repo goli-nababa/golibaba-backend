@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 	"user_service/internal/domain"
-
+	"github.com/google/uuid"
 	"github.com/goli-nababa/golibaba-backend/common"
 )
 
@@ -13,6 +13,9 @@ type Service interface {
 	CreateUser(ctx context.Context, user *common.User) (common.UserID, error)
 	RunMigrations() error
 	GetUserByID(ctx context.Context, id common.UserID) (*common.User, error)
+	GetUserByUUID(ctx context.Context, userUUID uuid.UUID) (*common.User, error)
+	DeleteUserByID(ctx context.Context, userID common.UserID) error
+	DeleteUserByUUID(ctx context.Context, userID uuid.UUID) error
 
 	BlockUser(ctx context.Context, userId uint) error
 	UnblockUser(ctx context.Context, userId uint) error

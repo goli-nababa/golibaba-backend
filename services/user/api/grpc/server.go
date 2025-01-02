@@ -32,7 +32,9 @@ func (u *userServiceGRPCApi) CreateUser(ctx context.Context, user *pb.User) (*pb
 		Phone:     user.Phone,
 	}
 
-	if err := u.app.UserService(ctx).CreateUser(ctx, userDomain); err != nil {
+	_, err := u.app.UserService(ctx).CreateUser(ctx, userDomain); 
+	
+	if err != nil {
 		return nil, err
 	}
 

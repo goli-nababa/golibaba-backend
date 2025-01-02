@@ -297,7 +297,7 @@ func (r *userRepo) SaveLog(ctx context.Context, log *common.Log) error {
 	return nil
 }
 
-func (r *userRepository) ListNotif(ctx context.Context, userId uint) ([]domain.Notification, error) {
+func (r *userRepo) ListNotif(ctx context.Context, userId uint) ([]domain.Notification, error) {
 	var notifications []storageTypes.Notification
 	query := r.db.WithContext(ctx)
 
@@ -309,7 +309,7 @@ func (r *userRepository) ListNotif(ctx context.Context, userId uint) ([]domain.N
 	return mapper.NotificationsFromStorage(notifications), nil
 }
 
-func (r *userRepository) CreateNotif(ctx context.Context, notification *domain.Notification) error {
+func (r *userRepo) CreateNotif(ctx context.Context, notification *domain.Notification) error {
 	storageNotification := mapper.NotificationToStorage(notification)
 	result := r.db.WithContext(ctx).Create(storageNotification)
 	if result.Error != nil {

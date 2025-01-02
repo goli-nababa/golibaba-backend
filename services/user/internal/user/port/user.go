@@ -4,6 +4,7 @@ import (
 	"context"
 	"user_service/internal/domain"
 
+	"github.com/google/uuid"
 	"github.com/goli-nababa/golibaba-backend/common"
 )
 
