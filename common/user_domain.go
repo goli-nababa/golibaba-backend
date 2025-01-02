@@ -12,6 +12,7 @@ type User struct {
 	Email     string
 	Password  string
 	Phone     string
+	Blocked   bool
 	WalletID  WalletID
 	// ToDo: Implement me
 }

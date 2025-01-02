@@ -10,5 +10,6 @@ type Rate struct {
 	StartDate time.Time
 	EndDate   time.Time
 	CreateAt  time.Time
+	UpdateAt  time.Time
 	DeletedAt time.Time
 }

@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Service Management</title>
+    <link href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header>
+    <div class="container">
+        <div class="navbar">
+            <h1>Navigation Service Management</h1>
+            <div class="navbar-nav">
+                <button onclick="refreshData()">Refresh Data</button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="tab-nav">
+        <button onclick="showTab('locations')" class="active">Locations</button>
+        <button onclick="showTab('routes')">Routes</button>
+    </div>
+
+    <div class="tab-content">
+        <!-- Locations Tab -->
+        <div id="locations" class="active">
+            <div class="grid">
+                <aside class="panel">
+                    <h2>Add Location</h2>
+                    <form id="locationForm" onsubmit="handleLocationSubmit(event)">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" id="locationName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select id="locationType" required>
+                                <option value="AIRPORT">Airport</option>
+                                <option value="BUS_TERMINAL">Bus Terminal</option>
+                                <option value="TRAIN_STATION">Train Station</option>
+                                <option value="PORT">Port</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Address</label>
+                            <textarea id="locationAddress" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>انتخاب موقعیت روی نقشه</label>
+                            <div id="locationSelectorMap" style="height: 300px; margin-bottom: 15px;" class="map-container"></div>
+                            <small class="help-text">برای انتخاب موقعیت روی نقشه کلیک کنید. مارکر را می‌توانید جابجا کنید.</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Latitude</label>
+                            <input type="number" id="locationLat" step="any" required readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Longitude</label>
+                            <input type="number" id="locationLng" step="any" required readonly>
+                        </div>
+                        <button type="submit">Save Location</button>
+                    </form>
+                </aside>
+
+                <main class="panel">
+                    <div class="search-box">
+                        <input type="text" placeholder="Search locations..." onkeyup="searchLocations(this.value)">
+                    </div>
+                    <div class="map-container" id="locationsMap" style="display: none">
+                        <!-- Map will be rendered here -->
+                    </div>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Address</th>
+                            <th>Coordinates</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="locationsTableBody"></tbody>
+                    </table>
+                </main>
+            </div>
+        </div>
+
+        <!-- Routes Tab -->
+        <div id="routes">
+            <div class="grid">
+                <aside class="panel">
+                    <h2>Add Route</h2>
+                    <form id="routeForm" onsubmit="handleRouteSubmit(event)">
+                        <div class="form-group">
+                            <label>Route Code</label>
+                            <input type="text" id="routeCode" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>From Location</label>
+                            <select id="fromLocation" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>To Location</label>
+                            <select id="toLocation" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Vehicle Types</label>
+                            <div>
+                                <input type="checkbox" id="typeAirplane" value="AIRPLANE">
+                                <label for="typeAirplane">Airplane</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="typeBus" value="BUS">
+                                <label for="typeBus">Bus</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="typeTrain" value="TRAIN">
+                                <label for="typeTrain">Train</label>
+                            </div>
+                            <div>
+                                <input type="checkbox" id="typeShip" value="SHIP">
+                                <label for="typeShip">Ship</label>
+                            </div>
+                        </div>
+                        <button type="submit">Save Route</button>
+                    </form>
+                </aside>
+
+                <main class="panel">
+                    <div class="search-box">
+                        <input type="text" placeholder="Search routes..." onkeyup="searchRoutes(this.value)">
+                    </div>
+                    <div class="map-container" id="routesMap" style="display: none">
+                        <!-- Routes map will be rendered here -->
+                    </div>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Distance</th>
+                            <th>Vehicle Types</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="routesTableBody"></tbody>
+                    </table>
+                </main>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<script>
+    const API_BASE_URL = 'http://127.0.0.1:8082/api/v1';
+    let locations = [];
+    let routes = [];
+    let locationMarker
+
+    async function fetchLocations() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/locations`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Server returned error:', errorData);
+                showAlert(`error: ${errorData.message || errorData.error}`, 'error');
+                return;
+            }
+            locations = await response.json();
+            displayLocations(locations);
+            updateLocationSelects();
+            return locations;
+        } catch (error) {
+            console.error('Error fetching locations:', error);
+            showAlert('Error fetching locations', 'error');
+        }
+    }
+    function displayLocations(locations) {
+        const tbody = document.getElementById('locationsTableBody');
+        if (!tbody) {
+            console.error('Locations table body not found');
+            return;
+        }
+
+        tbody.innerHTML = '';
+
+        locations.forEach(location => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+            <td>${location.name}</td>
+            <td><span class="badge badge-primary">${location.type}</span></td>
+            <td>${location.address}</td>
+            <td>${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}</td>
+            <td>
+                <span class="badge ${location.active ? 'badge-success' : 'badge-warning'}">
+                    ${location.active ? 'Active' : 'Inactive'}
+                </span>
+            </td>
+            <td>
+                <div class="btn-group">
+                    <button class="btn-edit" onclick="editLocation(${location.id})">Edit</button>
+                    <button class="btn-delete" onclick="deleteLocation(${location.id})">Delete</button>
+                </div>
+            </td>
+        `;
+            tbody.appendChild(tr);
+        });
+    }
+
+
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.textContent = message;
+
+        const container = document.querySelector('.container');
+        const firstChild = container.firstChild;
+        container.insertBefore(alertDiv, firstChild);
+
+        setTimeout(() => alertDiv.remove(), 3000);
+    }
+
+
+    // Location Form Submission
+    async function handleLocationSubmit(event) {
+        event.preventDefault();
+        const locationData = {
+            name: document.getElementById('locationName').value,
+            type: document.getElementById('locationType').value,
+            address: document.getElementById('locationAddress').value,
+            latitude: parseFloat(document.getElementById('locationLat').value),
+            longitude: parseFloat(document.getElementById('locationLng').value),
+            active: true
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/locations`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(locationData)
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Server returned error:', errorData);
+                showAlert(`error: ${errorData.message || errorData.error}`, 'error');
+                return;
+            }
+
+
+            if (response.ok) {
+                showAlert('Location created successfully', 'success');
+                document.getElementById('locationForm').reset();
+                fetchLocations();
+            } else {
+                throw new Error('Failed to create location');
+            }
+        } catch (error) {
+            showAlert(error.message, 'error');
+        }
+    }
+
+    // Route Management
+    async function fetchRoutes() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/routes/search?active_only=false&page_size=10&page_number=1`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Server returned error:', errorData);
+                showAlert(`error: ${errorData.message || errorData.error}`, 'error');
+                return;
+            }
+            const data = await response.json();
+            routes = data.data || [];
+            displayRoutes(routes);
+            return routes;
+        } catch (error) {
+            console.error('Error fetching routes:', error);
+            showAlert('Error fetching routes', 'error');
+        }
+    }
+
+    function displayRoutes(routes) {
+        const tbody = document.getElementById('routesTableBody');
+        tbody.innerHTML = '';
+
+        routes.forEach(route => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                    <td>${route.code}</td>
+                    <td>${getLocationName(route.from_id)}</td>
+                    <td>${getLocationName(route.to_id)}</td>
+                    <td>${route.distance.toFixed(2)} km</td>
+                    <td>${route.vehicle_types.map(type =>
+                `<span class="badge badge-primary">${type}</span>`
+            ).join('')}</td>
+                    <td>
+                        <span class="badge ${route.active ? 'badge-success' : 'badge-warning'}">
+                            ${route.active ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button class="btn-edit" onclick="editRoute(${route.id})">Edit</button>
+                            <button class="btn-delete" onclick="deleteRoute(${route.id})">Delete</button>
+                            <button onclick="showRouteDetails(${route.id})">Details</button>
+                        </div>
+                    </td>
+                `;
+            tbody.appendChild(tr);
+        });
+    }
+
+
+    function updateCharts(vehicleTypes, locationTypes) {
+        // Vehicle Types Chart
+        const vehicleCtx = document.getElementById('vehicleTypeChart').getContext('2d');
+        new Chart(vehicleCtx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(vehicleTypes),
+                datasets: [{
+                    data: Object.values(vehicleTypes),
+                    backgroundColor: [
+                        '#1a73e8',
+                        '#dc3545',
+                        '#ffd600',
+                        '#28a745'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        });
+
+        // Location Types Chart
+        const locationCtx = document.getElementById('locationTypeChart').getContext('2d');
+        new Chart(locationCtx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(locationTypes),
+                datasets: [{
+                    data: Object.values(locationTypes),
+                    backgroundColor: [
+                        '#1a73e8',
+                        '#dc3545',
+                        '#ffd600',
+                        '#28a745'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        });
+    }
+
+
+    function getLocationName(id) {
+        const location = locations.find(l => l.id === id);
+        return location ? location.name : 'Unknown';
+    }
+
+    function updateLocationSelects() {
+        const fromSelect = document.getElementById('fromLocation');
+        const toSelect = document.getElementById('toLocation');
+
+        if (!fromSelect || !toSelect) {
+            console.error('Location selects not found');
+            return;
+        }
+
+        const options = locations.map(location =>
+            `<option value="${location.id}">${location.name} (${location.type})</option>`
+        ).join('');
+
+        fromSelect.innerHTML = '<option value="">Select location...</option>' + options;
+        toSelect.innerHTML = '<option value="">Select location...</option>' + options;
+    }
+
+    async function deleteLocation(id) {
+        if (!confirm('Are you sure you want to delete this location?')) return;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/locations/${id}`, {
+                method: 'DELETE'
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Server returned error:', errorData);
+                showAlert(`error: ${errorData.message || errorData.error}`, 'error');
+                return;
+            }
+
+
+            if (response.ok) {
+                showAlert('Location deleted successfully', 'success');
+                fetchLocations();
+            } else {
+                throw new Error('Failed to delete location');
+            }
+        } catch (error) {
+            showAlert(error.message, 'error');
+        }
+    }
+
+    async function deleteRoute(id) {
+        if (!confirm('Are you sure you want to delete this route?')) return;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/routes/${id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Server returned error:', errorData);
+                showAlert(`error: ${errorData.message || errorData.error}`, 'error');
+                return;
+            }
+
+
+            if (response.ok) {
+                showAlert('Route deleted successfully', 'success');
+                fetchRoutes();
+            } else {
+                throw new Error('Failed to delete route');
+            }
+        } catch (error) {
+            showAlert(error.message, 'error');
+        }
+    }
+    function showRouteDetails(id) {
+        const route = routes.find(r => r.id === id);
+        if (!route) return;
+
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+                <div class="modal-content">
+                    <h2>Route Details: ${route.code}</h2>
+                    <div class="route-details">
+                        <p><strong>From:</strong> ${getLocationName(route.from_id)}</p>
+                        <p><strong>To:</strong> ${getLocationName(route.to_id)}</p>
+                        <p><strong>Distance:</strong> ${route.distance.toFixed(2)} km</p>
+                        <p><strong>Vehicle Types:</strong> ${route.vehicle_types.join(', ')}</p>
+                        <p><strong>Status:</strong> ${route.active ? 'Active' : 'Inactive'}</p>
+                        <p><strong>Created:</strong> ${new Date(route.created_at).toLocaleString()}</p>
+                        <p><strong>Updated:</strong> ${new Date(route.updated_at).toLocaleString()}</p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()">Close</button>
+                </div>
+            `;
+        document.body.appendChild(modal);
+    }
+
+    function searchLocations(query) {
+        const filtered = locations.filter(location =>
+            location.name.toLowerCase().includes(query.toLowerCase()) ||
+            location.address.toLowerCase().includes(query.toLowerCase())
+        );
+        displayLocations(filtered);
+    }
+
+    async function searchRoutes(query = '', filters = {}) {
+        try {
+            // Build query parameters
+            const params = new URLSearchParams({
+                page_size: '10',
+                page_number: '1',
+                active_only: 'false',
+                ...filters
+            });
+
+            if (query) {
+                params.append('query', query);
+            }
+
+            const response = await fetch(`${API_BASE_URL}/routes/search?${params}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Server returned error:', errorData);
+                showAlert(`error: ${errorData.message || errorData.error}`, 'error');
+                return;
+            }
+
+            const data = await response.json();
+            if (data.data) {
+                displayRoutes(data.data);
+            } else {
+                displayRoutes([]);
+            }
+
+        } catch (error) {
+            console.error('Error searching routes:', error);
+            showAlert('Error searching routes', 'error');
+        }
+    }
+
+
+
+
+
+
+    function editLocation(id) {
+        const location = locations.find(l => l.id === id);
+        if (!location) return;
+
+        // پر کردن فرم با اطلاعات موجود
+        document.getElementById('locationName').value = location.name;
+        document.getElementById('locationType').value = location.type;
+        document.getElementById('locationAddress').value = location.address;
+
+        // نمایش موقعیت روی نقشه
+        locationSelectorMap.setView([location.latitude, location.longitude], 13);
+        updateLocationMarker(location.latitude, location.longitude);
+
+        // تغییر دکمه submit
+        const submitButton = document.querySelector('#locationForm button[type="submit"]');
+        submitButton.textContent = 'Update Location';
+        submitButton.onclick = async (event) => {
+            event.preventDefault();
+            await updateLocation(location.id);
+        };
+    }
+
+    function updateLocationMarker(lat, lng) {
+        // حذف مارکر قبلی اگر وجود داشته باشد
+        if (locationMarker) {
+            locationSelectorMap.removeLayer(locationMarker);
+        }
+
+        locationMarker = L.marker([lat, lng], {
+            draggable: true
+        }).addTo(locationSelectorMap);
+
+        document.getElementById('locationLat').value = lat.toFixed(6);
+        document.getElementById('locationLng').value = lng.toFixed(6);
+
+        locationMarker.on('dragend', function(event) {
+            const position = event.target.getLatLng();
+            document.getElementById('locationLat').value = position.lat.toFixed(6);
+            document.getElementById('locationLng').value = position.lng.toFixed(6);
+        });
+    }
+
+    // Update Location
+    async function updateLocation(id) {
+        const locationData = {
+            name: document.getElementById('locationName').value,
+            type: document.getElementById('locationType').value,
+            address: document.getElementById('locationAddress').value,
+            latitude: parseFloat(document.getElementById('locationLat').value),
+            longitude: parseFloat(document.getElementById('locationLng').value)
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/locations/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(locationData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Server returned error:', errorData);
+                showAlert(`error: ${errorData.message || errorData.error}`, 'error');
+                return;
+            }
+
+
+            if (response.ok) {
+                showAlert('Location updated successfully', 'success');
+                document.getElementById('locationForm').reset();
+                fetchLocations();
+
+                // Reset submit button
+                const submitButton = document.querySelector('#locationForm button[type="submit"]');
+                submitButton.textContent = 'Save Location';
+                submitButton.onclick = handleLocationSubmit;
+            } else {
+                throw new Error('Failed to update location');
+            }
+        } catch (error) {
+            showAlert(error.message, 'error');
+        }
+    }
+    ///
+    // Edit Route
+    function editRoute(id) {
+        const route = routes.find(r => r.id === id);
+        if (!route) return;
+
+        document.getElementById('routeCode').value = route.code;
+        document.getElementById('fromLocation').value = route.from_id;
+        document.getElementById('toLocation').value = route.to_id;
+
+        // Set vehicle types checkboxes
+        const vehicleTypesCheckboxes = ['typeAirplane', 'typeBus', 'typeTrain', 'typeShip'];
+        vehicleTypesCheckboxes.forEach(type => {
+            const checkbox = document.getElementById(type);
+            checkbox.checked = route.vehicle_types.includes(checkbox.value);
+        });
+
+        const submitButton = document.querySelector('#routeForm button[type="submit"]');
+        submitButton.textContent = 'Update Route';
+        submitButton.onclick = async (event) => {
+            event.preventDefault();
+            await updateRoute(route.id);
+        };
+    }
+
+    // Update Route
+    async function updateRoute(id) {
+        const routeData = {
+            code: document.getElementById('routeCode').value,
+            from_id: parseInt(document.getElementById('fromLocation').value),
+            to_id: parseInt(document.getElementById('toLocation').value),
+            vehicle_types: Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                .map(cb => cb.value)
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/routes/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(routeData)
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Server returned error:', errorData);
+                showAlert(`error: ${errorData.message || errorData.error}`, 'error');
+                return;
+            }
+
+            if (response.ok) {
+                showAlert('Route updated successfully', 'success');
+                document.getElementById('routeForm').reset();
+                fetchRoutes();
+
+                const submitButton = document.querySelector('#routeForm button[type="submit"]');
+                submitButton.textContent = 'Save Route';
+                submitButton.onclick = handleRouteSubmit;
+            } else {
+                throw new Error('Failed to update route');
+            }
+        } catch (error) {
+            showAlert(error.message, 'error');
+        }
+    }
+
+
+    // Route Form Submission
+    async function handleRouteSubmit(event) {
+        event.preventDefault();
+        const vehicleTypes = [];
+        ['typeAirplane', 'typeBus', 'typeTrain', 'typeShip'].forEach(type => {
+            if (document.getElementById(type).checked) {
+                vehicleTypes.push(document.getElementById(type).value);
+            }
+        });
+
+        const routeData = {
+            code: document.getElementById('routeCode').value,
+            from_id: parseInt(document.getElementById('fromLocation').value),
+            to_id: parseInt(document.getElementById('toLocation').value),
+            vehicle_types: vehicleTypes,
+            active: true
+        };
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/routes`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(routeData)
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Server returned error:', errorData);
+                showAlert(`error: ${errorData.message || errorData.error}`, 'error');
+                return;
+            }
+
+
+            if (response.ok) {
+                showAlert('Route created successfully', 'success');
+                document.getElementById('routeForm').reset();
+                fetchRoutes();
+            } else {
+                throw new Error('Failed to create route');
+            }
+        } catch (error) {
+            showAlert(error.message, 'error');
+        }
+    }
+
+
+    // Map initialization
+    let locationsMap;
+    let routesMap;
+
+    function initializeMaps() {
+        // Locations map
+        locationsMap = L.map('locationsMap').setView([35.6892, 51.3890], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(locationsMap);
+
+        // Routes map
+        routesMap = L.map('routesMap').setView([35.6892, 51.3890], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(routesMap);
+
+        updateMaps();
+    }
+
+    function updateMaps() {
+        // Clear existing markers and routes
+        locationsMap.eachLayer((layer) => {
+            if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+                locationsMap.removeLayer(layer);
+            }
+        });
+
+        routesMap.eachLayer((layer) => {
+            if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+                routesMap.removeLayer(layer);
+            }
+        });
+
+        // Add location markers
+        locations.forEach(location => {
+            const marker = L.marker([location.latitude, location.longitude])
+                .bindPopup(`
+                <strong>${location.name}</strong><br>
+                ${location.type}<br>
+                ${location.address}
+            `);
+
+            marker.addTo(locationsMap);
+            marker.addTo(routesMap);
+        });
+
+        // Add route lines
+        routes.forEach(route => {
+            const from = locations.find(l => l.id === route.from_id);
+            const to = locations.find(l => l.id === route.to_id);
+
+            if (from && to) {
+                const line = L.polyline([
+                    [from.latitude, from.longitude],
+                    [to.latitude, to.longitude]
+                ], {
+                    color: route.active ? '#1a73e8' : '#dc3545',
+                    weight: 2,
+                    opacity: 0.8
+                }).bindPopup(`
+                <strong>${route.code}</strong><br>
+                From: ${from.name}<br>
+                To: ${to.name}<br>
+                Distance: ${route.distance.toFixed(2)} km
+            `);
+
+                line.addTo(routesMap);
+            }
+        });
+    }
+    function initializeLocationSelector() {
+        locationSelectorMap = L.map('locationSelectorMap').setView([35.6892, 51.3890], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(locationSelectorMap);
+
+        locationSelectorMap.on('click', function(e) {
+            const { lat, lng } = e.latlng;
+            updateLocationMarker(lat, lng);
+        });
+
+        setTimeout(() => {
+            locationSelectorMap.invalidateSize();
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        console.log('DOM loaded, initializing...');
+        try {
+            initializeMaps();
+            initializeLocationSelector();
+            await Promise.all([
+                fetchLocations(),
+                fetchRoutes()
+            ]);
+            updateMaps();
+            console.log('Initial data loaded successfully');
+        } catch (error) {
+            console.error('Error loading initial data:', error);
+            showAlert('Error loading initial data', 'error');
+        }
+    });
+
+    function showTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content > div').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.tab-nav button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected tab
+        document.getElementById(tabName).classList.add('active');
+        document.querySelector(`button[onclick="showTab('${tabName}')"]`).classList.add('active');
+
+        // Refresh data and maps when switching tabs
+        switch(tabName) {
+            case 'locations':
+                fetchLocations().then(() => {
+                    locationsMap.invalidateSize();
+                    updateMaps();
+                });
+                break;
+            case 'routes':
+                fetchRoutes().then(() => {
+                    routesMap.invalidateSize();
+                    updateMaps();
+                });
+                break;
+
+        }
+    }
+
+    async function refreshData() {
+        try {
+            showAlert('Refreshing data...', 'info');
+            await Promise.all([
+                fetchLocations(),
+                fetchRoutes()
+            ]);
+            updateMaps();
+            showAlert('Data refreshed successfully', 'success');
+        } catch (error) {
+            showAlert('Error refreshing data', 'error');
+        }
+    }
+
+</script>
+</body>
+</html>
