@@ -27,4 +27,6 @@ type UserServiceClient interface {
 	) error
 	CancelStatement(userID common.UserID, statementID common.StatementID) error
 	CheckAccess(userID common.UserID, permission []string) (bool, error)
+
+	SaveLog(log *pb.Log) (*pb.SaveLogResponse, error)
 }

@@ -4,9 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/goli-nababa/golibaba-backend/common"
-	"github.com/goli-nababa/golibaba-backend/modules/gateway_client"
-	"google.golang.org/grpc"
 	"log"
 	"net"
 	"os"
@@ -17,9 +14,14 @@ import (
 	"user_service/app"
 	"user_service/config"
 
-	pb "github.com/goli-nababa/golibaba-backend/proto/pb"
+	"github.com/goli-nababa/golibaba-backend/common"
+	"github.com/goli-nababa/golibaba-backend/modules/gateway_client"
+	"google.golang.org/grpc"
+
 	server "user_service/api/grpc"
 	"user_service/api/http"
+
+	pb "github.com/goli-nababa/golibaba-backend/proto/pb"
 )
 
 var configPath = flag.String("config", "config.json", "Path to service config file")
@@ -64,6 +66,24 @@ func main() {
 		Mapping: map[string]gateway_client.Endpoint{
 			"/login": {
 				Url: "/account/login",
+				PermissionList: map[string]any{
+					"super_admin": append(common.RbacAdminPermissions, "user_service:user:delete"),
+				},
+			},
+			"/register": {
+				Url: "/account/register",
+				PermissionList: map[string]any{
+					"super_admin": append(common.RbacAdminPermissions, "user_service:user:delete"),
+				},
+			},
+			"/history": {
+				Url: "/dashboard/history",
+				PermissionList: map[string]any{
+					"super_admin": append(common.RbacAdminPermissions, "user_service:user:delete"),
+				},
+			},
+			"/notifications": {
+				Url: "/dashboard/notifications",
 				PermissionList: map[string]any{
 					"super_admin": append(common.RbacAdminPermissions, "user_service:user:delete"),
 				},

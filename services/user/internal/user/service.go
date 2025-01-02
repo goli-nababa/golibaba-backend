@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"user_service/internal/domain"
+	port "user_service/internal/user/port"
+
+	"github.com/google/uuid"
 	"github.com/goli-nababa/golibaba-backend/common"
 	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
-	"log"
-	port "user_service/internal/user/port"
 )
 
 var (
@@ -92,6 +95,28 @@ func (s *service) GetUserByID(ctx context.Context, id common.UserID) (*common.Us
 	return user, nil
 }
 
+func (s *service) GetUserByUUID(ctx context.Context, userUUID uuid.UUID) (*common.User, error) {
+	user, err := s.repo.GetByUUID(ctx, userUUID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user by uuid: %w", err)
+	}
+	return user, nil
+}
+
+func (s *service) DeleteUserByID(ctx context.Context, userID common.UserID) error {
+	if err := s.repo.DeleteByID(ctx, userID); err != nil {
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+	return nil
+}
+
+func (s *service) DeleteUserByUUID(ctx context.Context, userUUID uuid.UUID) error {
+	if err := s.repo.DeleteByUUID(ctx, userUUID); err != nil {
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+	return nil
+}
+
 func (s *service) BlockUser(ctx context.Context, userID uint) error {
 	if err := s.repo.Block(ctx, userID); err != nil {
 		return fmt.Errorf("failed to block user: %w", err)
@@ -156,4 +181,35 @@ func (s *service) CheckAccess(ctx context.Context, userID common.UserID, permiss
 	}
 
 	return hasAccess, nil
+}
+
+func (s *service) GetHistory(ctx context.Context, userId uint, page int, pageSize int) ([]common.Log, error) {
+	userHistory, err := s.repo.GetLogByUserId(ctx, userId, page, pageSize)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get users history: %w", err)
+	}
+	return userHistory, nil
+}
+
+func (s *service) SaveLog(ctx context.Context, log *common.Log) error {
+	if err := s.repo.SaveLog(ctx, log); err != nil {
+		return fmt.Errorf("failed to save user log: %w", err)
+	}
+	return nil
+}
+
+func (s *service) GetNotifications(ctx context.Context, userId uint) ([]domain.Notification, error) {
+	locations, err := s.repo.ListNotif(ctx, userId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list notifications: %w", err)
+	}
+	return locations, nil
+}
+
+func (s *service) CreateNotification(ctx context.Context, notification *domain.Notification) error {
+	if err := s.repo.CreateNotif(ctx, notification); err != nil {
+		return fmt.Errorf("failed to create notification: %w", err)
+	}
+	return nil
 }

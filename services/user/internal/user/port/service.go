@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"user_service/internal/domain"
+	"github.com/google/uuid"
 	"github.com/goli-nababa/golibaba-backend/common"
 )
 
@@ -11,6 +13,9 @@ type Service interface {
 	CreateUser(ctx context.Context, user *common.User) (common.UserID, error)
 	RunMigrations() error
 	GetUserByID(ctx context.Context, id common.UserID) (*common.User, error)
+	GetUserByUUID(ctx context.Context, userUUID uuid.UUID) (*common.User, error)
+	DeleteUserByID(ctx context.Context, userID common.UserID) error
+	DeleteUserByUUID(ctx context.Context, userID uuid.UUID) error
 
 	BlockUser(ctx context.Context, userId uint) error
 	UnblockUser(ctx context.Context, userId uint) error
@@ -21,4 +26,9 @@ type Service interface {
 	PublishStatement(ctx context.Context, userIDs []common.UserID, action common.TypeStatementAction, permissions []string) error
 	CancelStatement(ctx context.Context, userIDs common.UserID, statementID common.StatementID) error
 	CheckAccess(ctx context.Context, userID common.UserID, permissions []string) (bool, error)
+	GetHistory(ctx context.Context, id uint, page int, pageSize int) ([]common.Log, error)
+	SaveLog(ctx context.Context, log *common.Log) error
+
+	GetNotifications(ctx context.Context, userId uint) ([]domain.Notification, error)
+	CreateNotification(ctx context.Context, notification *domain.Notification) error
 }

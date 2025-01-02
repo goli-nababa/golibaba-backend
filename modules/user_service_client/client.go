@@ -187,3 +187,12 @@ func (us *userServiceClient) CheckAccess(userID common.UserID, permissions []str
 
 	return resp.HasAccess, nil
 }
+
+func (us *userServiceClient) SaveLog(log *pb.Log) (*pb.SaveLogResponse, error) {
+	response, err := us.client.SaveLog(context.Background(), log)
+	if err != nil {
+		return nil, fmt.Errorf("failed to save log: %w", err)
+	}
+
+	return response, nil
+}

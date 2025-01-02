@@ -116,6 +116,18 @@ message CheckAccessResponse {
   bool has_access = 1;
 }
 
+message Log {
+  uint64 id = 1;
+  uint64 user_id = 2;
+  uint64 company_id = 3;
+  string action = 4;
+  string path = 5;
+}
+
+message SaveLogResponse {
+  Log log = 1;
+}
+
 service UserService {
   rpc CreateUser(User) returns (CreateUserResponse);
   rpc BlockUser(BlockUserRequest) returns (BlockUserResponse);
@@ -131,4 +143,5 @@ service UserService {
   rpc PublishStatement(PublishStatementRequest) returns (PublishStatementResponse);
   rpc CancelStatement(CancelStatementRequest) returns (CancelStatementResponse);
   rpc CheckAccess(CheckAccessRequest) returns (CheckAccessResponse);
+  rpc SaveLog(Log) returns (SaveLogResponse);
 }

@@ -32,7 +32,9 @@ func (u *userServiceGRPCApi) CreateUser(ctx context.Context, user *pb.User) (*pb
 		Phone:     user.Phone,
 	}
 
-	if err := u.app.UserService(ctx).CreateUser(ctx, userDomain); err != nil {
+	_, err := u.app.UserService(ctx).CreateUser(ctx, userDomain); 
+	
+	if err != nil {
 		return nil, err
 	}
 
@@ -176,6 +178,24 @@ func (u *userServiceGRPCApi) UnblockUser(ctx context.Context, req *pb.UnblockUse
 	return &pb.UnblockUserResponse{}, nil
 }
 
+func (u *userServiceGRPCApi) SaveLog(ctx context.Context, log *pb.Log) (*pb.SaveLogResponse, error) {
+	logDomain := &common.Log{
+		ID:        common.LogID(log.Id),
+		UserID:    int64(log.UserId),
+		CompanyID: int64(log.CompanyId),
+		Action:    log.Action,
+		Path:      log.Path,
+	}
+
+	if err := u.app.UserService(ctx).SaveLog(ctx, logDomain); err != nil {
+		return nil, err
+	}
+
+	return &pb.SaveLogResponse{
+		Log: convertToProtoLog(logDomain),
+	}, nil
+}
+
 func convertToProtoUser(user *common.User) *pb.User {
 	return &pb.User{
 		Id:        uint64(user.ID),
@@ -184,5 +204,15 @@ func convertToProtoUser(user *common.User) *pb.User {
 		LastName:  user.LastName,
 		Password:  user.Password,
 		Phone:     user.Phone,
+	}
+}
+
+func convertToProtoLog(log *common.Log) *pb.Log {
+	return &pb.Log{
+		Id:        uint64(log.ID),
+		UserId:    uint64(log.UserID),
+		CompanyId: uint64(log.CompanyID),
+		Action:    log.Action,
+		Path:      log.Path,
 	}
 }
