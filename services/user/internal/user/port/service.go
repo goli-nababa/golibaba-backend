@@ -23,6 +23,9 @@ type Service interface {
 	PublishStatement(ctx context.Context, userIDs []common.UserID, action common.TypeStatementAction, permissions []string) error
 	CancelStatement(ctx context.Context, userIDs common.UserID, statementID common.StatementID) error
 	CheckAccess(ctx context.Context, userID common.UserID, permissions []string) (bool, error)
+	GetHistory(ctx context.Context, id uint, page int, pageSize int) ([]common.Log, error)
+	SaveLog(ctx context.Context, log *common.Log) error
+
 	GetNotifications(ctx context.Context, userId uint) ([]domain.Notification, error)
 	CreateNotification(ctx context.Context, notification *domain.Notification) error
 }

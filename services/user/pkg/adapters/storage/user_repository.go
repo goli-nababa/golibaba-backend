@@ -275,6 +275,28 @@ func (r *userRepo) CheckAccess(ctx context.Context, userID common.UserID, permis
 	return false, nil
 }
 
+func (r *userRepo) GetLogByUserId(ctx context.Context, userId uint, page int, pageSize int) ([]common.Log, error) {
+	var logs []common.Log
+
+	offset := (page - 1) * pageSize
+	err := r.db.WithContext(ctx).Where("user_id = ?", userId).
+		Order("created_at DESC").
+		Limit(pageSize).
+		Offset(offset).
+		Find(&logs).Error
+	if err != nil {
+		return nil, err
+	}
+	return logs, nil
+}
+
+func (r *userRepo) SaveLog(ctx context.Context, log *common.Log) error {
+	if err := r.db.WithContext(ctx).Create(log).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *userRepository) ListNotif(ctx context.Context, userId uint) ([]domain.Notification, error) {
 	var notifications []storageTypes.Notification
 	query := r.db.WithContext(ctx)

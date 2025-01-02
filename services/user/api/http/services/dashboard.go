@@ -27,6 +27,14 @@ func DashboardServiceGetter(appContainer app.App, cfg config.ServerConfig) helpe
 	}
 }
 
+func (ds *DashboardService) SaveLog(c context.Context, log *common.Log) error {
+	return ds.UserService.SaveLog(c, log)
+}
+
+func (ds *DashboardService) GetHistory(c context.Context, userId uint, page int, pageSize int) ([]common.Log, error) {
+	return ds.UserService.GetHistory(c, userId, page, pageSize)
+}
+
 func (ds *DashboardService) GetNotifications(c context.Context, userId uint) ([]domain.Notification, error) {
 	return ds.UserService.GetNotifications(c, userId)
 }

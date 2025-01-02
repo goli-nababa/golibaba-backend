@@ -4,13 +4,14 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/goli-nababa/golibaba-backend/modules/cache"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
+
+	"github.com/goli-nababa/golibaba-backend/modules/cache"
 
 	"api_gateway/api/gateway"
 	"api_gateway/api/http/types"
@@ -43,7 +44,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 
-		err := httpHandler.Bootstrap(appContainer, c.Server)
+		err := httpHandler.Bootstrap(appContainer, c.Server, c.Grpc)
 
 		if err != nil {
 			return

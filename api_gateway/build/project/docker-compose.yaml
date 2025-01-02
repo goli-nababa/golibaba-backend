@@ -12,7 +12,23 @@ services:
       - "../config.json:/usr/local/bin/config.json"
     depends_on:
       - golibaba-gateway-redis
+      - golibaba-rabbitmq
+
+  golibaba-rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: golibaba-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - golibaba-rabbit-volume:/var/lib/rabbitmq/
+    networks:
+      - golibaba-network
 
 networks:
   golibaba-network:
     driver: bridge
+
+volumes:
+  golibaba-rabbit-volume:
+    driver: local

@@ -2,22 +2,41 @@ package http
 
 import (
 	"api_gateway/api/http/helpers"
+	"api_gateway/api/http/middlewares"
 	"api_gateway/api/http/types"
 	"api_gateway/config"
+	adapters "api_gateway/pkg/adapters/rabbitmq"
+	"api_gateway/pkg/logging"
 	"encoding/json"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/goli-nababa/golibaba-backend/modules/cache"
 	"log"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/goli-nababa/golibaba-backend/modules/cache"
 
 	di "api_gateway/app"
 )
 
-func Bootstrap(appContainer di.App, cfg config.ServerConfig) error {
+func Bootstrap(appContainer di.App, cfg config.ServerConfig, grpcCfg config.GrpcConfig) error {
 	app := fiber.New(fiber.Config{
 		JSONEncoder: json.Marshal,
 		JSONDecoder: json.Unmarshal,
+	})
+
+	rabbitMQPublisher := appContainer.RabbitMQPublisher()
+	logPublisher := logging.NewRabbitMQLogPublisher(rabbitMQPublisher)
+	logService := logging.LogService{Publisher: logPublisher}
+	logMiddleware := middlewares.LogMiddleware{LogService: &logService}
+
+	// Add middleware
+	app.Use(logMiddleware.Handle)
+
+	// Start RabbitMQ consumer
+	appContainer.StartRabbitMQConsumer(func(consumer *adapters.RabbitMQConsumer) {
+		if err := consumer.Consume(); err != nil {
+			log.Fatalf("Error consuming messages: %v", err)
+		}
 	})
 
 	app.Post("/v1/register", RegisterServices(appContainer, cfg))

@@ -1,5 +1,14 @@
 package types
 
+type GetUserHistoryRequest struct {
+	Page     int `json:"page"`
+	PageSize int `json:"page_size"`
+}
+type UserHistoryResponse struct {
+	Action    string `json:"action"`
+	Path      string `json:"path"`
+	CreatedAt string `json:"created_at"`
+}
 
 type NotificationResponse struct {
 	ID        uint   `json:"id"`

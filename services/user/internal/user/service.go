@@ -158,6 +158,22 @@ func (s *service) CheckAccess(ctx context.Context, userID common.UserID, permiss
 	return hasAccess, nil
 }
 
+func (s *service) GetHistory(ctx context.Context, userId uint, page int, pageSize int) ([]common.Log, error) {
+	userHistory, err := s.repo.GetLogByUserId(ctx, userId, page, pageSize)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get users history: %w", err)
+	}
+	return userHistory, nil
+}
+
+func (s *service) SaveLog(ctx context.Context, log *common.Log) error {
+	if err := s.repo.SaveLog(ctx, log); err != nil {
+		return fmt.Errorf("failed to save user log: %w", err)
+	}
+	return nil
+}
+
 func (s *service) GetNotifications(ctx context.Context, userId uint) ([]domain.Notification, error) {
 	locations, err := s.repo.ListNotif(ctx, userId)
 	if err != nil {

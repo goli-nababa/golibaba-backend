@@ -33,6 +33,7 @@ const (
 	UserService_PublishStatement_FullMethodName = "/UserService/PublishStatement"
 	UserService_CancelStatement_FullMethodName  = "/UserService/CancelStatement"
 	UserService_CheckAccess_FullMethodName      = "/UserService/CheckAccess"
+	UserService_SaveLog_FullMethodName          = "/UserService/SaveLog"
 )
 
 // UserServiceClient is the client API for UserService service.
@@ -53,6 +54,7 @@ type UserServiceClient interface {
 	PublishStatement(ctx context.Context, in *PublishStatementRequest, opts ...grpc.CallOption) (*PublishStatementResponse, error)
 	CancelStatement(ctx context.Context, in *CancelStatementRequest, opts ...grpc.CallOption) (*CancelStatementResponse, error)
 	CheckAccess(ctx context.Context, in *CheckAccessRequest, opts ...grpc.CallOption) (*CheckAccessResponse, error)
+	SaveLog(ctx context.Context, in *Log, opts ...grpc.CallOption) (*SaveLogResponse, error)
 }
 
 type userServiceClient struct {
@@ -203,6 +205,16 @@ func (c *userServiceClient) CheckAccess(ctx context.Context, in *CheckAccessRequ
 	return out, nil
 }
 
+func (c *userServiceClient) SaveLog(ctx context.Context, in *Log, opts ...grpc.CallOption) (*SaveLogResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SaveLogResponse)
+	err := c.cc.Invoke(ctx, UserService_SaveLog_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility.
@@ -221,6 +233,7 @@ type UserServiceServer interface {
 	PublishStatement(context.Context, *PublishStatementRequest) (*PublishStatementResponse, error)
 	CancelStatement(context.Context, *CancelStatementRequest) (*CancelStatementResponse, error)
 	CheckAccess(context.Context, *CheckAccessRequest) (*CheckAccessResponse, error)
+	SaveLog(context.Context, *Log) (*SaveLogResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -272,6 +285,9 @@ func (UnimplementedUserServiceServer) CancelStatement(context.Context, *CancelSt
 }
 func (UnimplementedUserServiceServer) CheckAccess(context.Context, *CheckAccessRequest) (*CheckAccessResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckAccess not implemented")
+}
+func (UnimplementedUserServiceServer) SaveLog(context.Context, *Log) (*SaveLogResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveLog not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 func (UnimplementedUserServiceServer) testEmbeddedByValue()                     {}
@@ -546,6 +562,24 @@ func _UserService_CheckAccess_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_SaveLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Log)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).SaveLog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserService_SaveLog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).SaveLog(ctx, req.(*Log))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -608,6 +642,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckAccess",
 			Handler:    _UserService_CheckAccess_Handler,
+		},
+		{
+			MethodName: "SaveLog",
+			Handler:    _UserService_SaveLog_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -3,6 +3,7 @@ package config
 type Config struct {
 	Server ServerConfig `json:"server"`
 	Redis  RedisConfig  `json:"redis"`
+	Grpc   GrpcConfig   `json:"grpc"`
 }
 
 type ServerConfig struct {
@@ -13,4 +14,10 @@ type ServerConfig struct {
 type RedisConfig struct {
 	Host string `json:"host"`
 	Port uint   `json:"port"`
+}
+
+type GrpcConfig struct {
+	Url     string `json:"url"`
+	Version uint32 `json:"version"`
+	Port    uint64 `json:"port"`
 }

@@ -30,6 +30,8 @@ type Repo interface {
 	PublishStatement(ctx context.Context, userIDs []common.UserID, action common.TypeStatementAction, permissions []string) error
 	CancelStatement(ctx context.Context, userIDs common.UserID, statementID common.StatementID) error
 	CheckAccess(ctx context.Context, userID common.UserID, permissions []string) (bool, error)
+	GetLogByUserId(ctx context.Context, userId uint, page int, pageSize int) ([]common.Log, error)
+	SaveLog(ctx context.Context, log *common.Log) error
 	ListNotif(ctx context.Context, userId uint) ([]domain.Notification, error)
 	CreateNotif(ctx context.Context, notification *domain.Notification) error
 }
