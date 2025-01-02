@@ -1,18 +1,16 @@
-package port
+package user
 
 import (
 	"context"
-
 	"github.com/goli-nababa/golibaba-backend/common"
-	"github.com/google/uuid"
 )
 
 type Service interface {
-	CreateUser(ctx context.Context, user *common.User) error
-	GetUserByID(ctx context.Context, userID common.UserID) (*common.User, error)
-	GetUserByUUID(ctx context.Context, userUUID uuid.UUID) (*common.User, error)
-	DeleteUserByID(ctx context.Context, userID common.UserID) error
-	DeleteUserByUUID(ctx context.Context, userID uuid.UUID) error
+	GetUserByUsernamePassword(ctx context.Context, username string, password string) (*common.User, error)
+	GetUserByEmail(ctx context.Context, email string) (*common.User, error)
+	CreateUser(ctx context.Context, user *common.User) (common.UserID, error)
+	RunMigrations() error
+	GetUserByID(ctx context.Context, id common.UserID) (*common.User, error)
 
 	BlockUser(ctx context.Context, userId uint) error
 	UnblockUser(ctx context.Context, userId uint) error

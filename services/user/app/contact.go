@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"user_service/config"
-	userPort "user_service/internal/port"
+	userPort "user_service/internal/user/port"
 
 	"gorm.io/gorm"
 )

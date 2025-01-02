@@ -1,6 +1,9 @@
 package common
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type UserID uint64
 
@@ -14,5 +17,8 @@ type User struct {
 	Phone     string
 	Blocked   bool
 	WalletID  WalletID
-	// ToDo: Implement me
+	Role      string
+	Birthday  time.Time
+	CreatedAt time.Time
+	DeletedAt time.Time
 }

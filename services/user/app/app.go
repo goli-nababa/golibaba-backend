@@ -4,10 +4,9 @@ import (
 	"context"
 	"fmt"
 	"user_service/config"
-	user "user_service/internal"
-	userPort "user_service/internal/port"
+	"user_service/internal/user"
+	userPort "user_service/internal/user/port"
 	"user_service/pkg/adapters/storage"
-	"user_service/pkg/adapters/storage/migrations"
 	appCtx "user_service/pkg/context"
 	"user_service/pkg/postgres"
 
@@ -29,7 +28,7 @@ func (a *app) DB() *gorm.DB {
 }
 
 func (a *app) userServiceWithDB(db *gorm.DB) userPort.Service {
-	return user.NewService(storage.NewUserRepository(db))
+	return user.NewService(storage.NewUserRepo(db, a.cfg.Server.Secret))
 }
 
 func (a *app) UserService(ctx context.Context) userPort.Service {
@@ -57,11 +56,6 @@ func (a *app) setDB() error {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	migrationManager := migrations.NewManager(db)
-	if err := migrationManager.RunMigrations(); err != nil {
-		return fmt.Errorf("failed to run migrations: %w", err)
-	}
-
 	a.db = db
 	return nil
 }
@@ -69,10 +63,16 @@ func (a *app) setDB() error {
 func NewApp(cfg config.Config) (App, error) {
 	a := &app{cfg: cfg}
 
-	/*	if err := a.setDB(); err != nil {
-			return nil, err
-		}
+	if err := a.setDB(); err != nil {
+		return nil, err
+	}
 
+	err := a.userService.RunMigrations()
+
+	if err != nil {
+		return nil, err
+	}
+	/*
 		a.setRedis()
 		a.setEmailService()*/
 

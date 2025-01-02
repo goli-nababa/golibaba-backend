@@ -1,18 +1,17 @@
 package mapper
 
 import (
-	storageTypes "user_service/pkg/adapters/storage/types"
-
 	"github.com/goli-nababa/golibaba-backend/common"
 	"github.com/google/uuid"
+	"user_service/pkg/adapters/storage/types"
 )
 
-func UserToStorage(user *common.User) *storageTypes.User {
+func UserToStorage(user *common.User) *types.User {
 	if user == nil {
 		return nil
 	}
 
-	return &storageTypes.User{
+	return &types.User{
 		ID:        uint(user.ID),
 		UUID:      user.UUID.String(),
 		FirstName: user.FirstName,
@@ -24,15 +23,15 @@ func UserToStorage(user *common.User) *storageTypes.User {
 	}
 }
 
-func UserFromStorage(user *storageTypes.User) *common.User {
+func UserFromStorage(user *types.User) *common.User {
 	if user == nil {
 		return nil
 	}
 
-	uuid, _ := uuid.Parse(user.UUID)
+	parsedUUID, _ := uuid.Parse(user.UUID)
 	return &common.User{
 		ID:        common.UserID(user.ID),
-		UUID:      uuid,
+		UUID:      parsedUUID,
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		Password:  user.Password,
