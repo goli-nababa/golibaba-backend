@@ -1,0 +1,18 @@
+services:
+  golibaba-admin-service-redis:
+    image: redis/redis-stack:latest
+    container_name: golibaba-admin-service-redis
+    ports:
+      - "8004:8001"
+    networks:
+      - golibaba-network
+    volumes:
+      - golibaba-admin-service-redis-volume:/data
+
+volumes:
+  golibaba-admin-service-redis-volume:
+    driver: local
+
+networks:
+  golibaba-network:
+    driver: bridge

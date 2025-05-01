@@ -1,0 +1,30 @@
+{
+    "db": {
+        "host": "postgres_bank_postgres",
+        "port": 5432,
+        "http_port": 51021,
+        "database": "bankdb",
+        "schema": "public",
+        "user": "bankuser",
+        "password": "bankpass"
+    },
+    "server": {
+        "port": 8082,
+        "secret": "your-secret-key",
+        "password_secret": "your-password-secret",
+        "otp_ttl_minutes": 5,
+        "maxRequestsPerSecond": 100,
+        "auth_expiration_minutes": 60,
+        "auth_refresh_minutes": 1440
+    },
+    "redis": {
+        "host": "bank-redis",
+        "port": 6379
+    },
+    "logger": {
+        "file_path": "./logs/",
+        "encoding": "json",
+        "level": "debug",
+        "logger": "zap"
+    }
+}

@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package bank.v1;
+
+option go_package = "bank_service/gen/go/bank/v1;bankv1";
+
+import "google/protobuf/timestamp.proto";
+
+message Money {
+  int64 amount = 1;
+  string currency = 2;
+}
+
+message BankAccountInfo {
+  string account_number = 1;
+  string iban = 2;
+  string bank_name = 3;
+  string account_name = 4;
+  string card_number = 5;
+}
+
+message BusinessStats {
+  Money total_revenue = 1;
+  Money total_commission = 2;
+  Money total_payouts = 3;
+  int64 transaction_count = 4;
+  int64 successful_tx_count = 5;
+  int64 failed_tx_count = 6;
+  Money average_order_value = 7;
+  double commission_rate = 8;
+  google.protobuf.Timestamp period_start = 9;
+  google.protobuf.Timestamp period_end = 10;
+}

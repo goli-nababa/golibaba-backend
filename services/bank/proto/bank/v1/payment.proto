@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package bank.v1;
+
+option go_package = "bank_service/gen/go/bank/v1;bankv1";
+
+import "bank/v1/common.proto";
+import "bank/v1/transaction.proto";
+
+service PaymentService {
+  rpc ProcessPayment(ProcessPaymentRequest) returns (ProcessPaymentResponse);
+  rpc ProcessRefund(ProcessRefundRequest) returns (ProcessRefundResponse);
+  rpc VerifyPayment(VerifyPaymentRequest) returns (VerifyPaymentResponse);
+  rpc RefundPayment(RefundPaymentRequest) returns (RefundPaymentResponse);
+  rpc ChargeWallet(ChargeWalletRequest) returns (ChargeWalletResponse);
+  rpc WithdrawFromWallet(WithdrawFromWalletRequest) returns (WithdrawFromWalletResponse);
+  rpc GetTransactionHistory(GetTransactionHistoryRequest) returns (GetTransactionHistoryResponse);
+
+}
+
+message ProcessPaymentRequest {
+  Transaction transaction = 1;
+}
+
+message ProcessPaymentResponse {
+  string reference_id = 1;
+}
+
+message ProcessRefundRequest {
+  Transaction transaction = 1;
+}
+
+message ProcessRefundResponse {
+  bool success = 1;
+}
+
+message VerifyPaymentRequest {
+  string reference_id = 1;
+}
+
+message VerifyPaymentResponse {
+  bool verified = 1;
+}
+
+message RefundPaymentRequest {
+  string payment_id = 1;
+}
+
+message RefundPaymentResponse {
+  bool success = 1;
+}
+
+message ChargeWalletRequest {
+  string wallet_id = 1;
+  Money amount = 2;
+}
+
+message ChargeWalletResponse {
+  bool success = 1;
+}
+
+message WithdrawFromWalletRequest {
+  string wallet_id = 1;
+  Money amount = 2;
+}
+
+message WithdrawFromWalletResponse {
+  bool success = 1;
+}
+
+message GetTransactionHistoryRequest {
+  string wallet_id = 1;
+}
+
+message GetTransactionHistoryResponse {
+  repeated Transaction transactions = 1;
+}

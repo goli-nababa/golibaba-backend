@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package bank.v1;
+
+option go_package = "bank_service/gen/go/bank/v1;bankv1";
+
+import "google/protobuf/timestamp.proto";
+import "bank/v1/common.proto";
+
+service FinancialReportService {
+  rpc GenerateDailyReport(GenerateDailyReportRequest) returns (GenerateDailyReportResponse);
+  rpc GenerateMonthlyReport(GenerateMonthlyReportRequest) returns (GenerateMonthlyReportResponse);
+  rpc GenerateCustomReport(GenerateCustomReportRequest) returns (GenerateCustomReportResponse);
+  rpc GetReportByID(GetReportByIDRequest) returns (GetReportByIDResponse);
+  rpc ExportReport(ExportReportRequest) returns (ExportReportResponse);
+}
+
+message FinancialReport {
+  string id = 1;
+  string report_type = 2;
+  uint64 business_id = 3;
+  google.protobuf.Timestamp start_date = 4;
+  google.protobuf.Timestamp end_date = 5;
+  string granularity = 6;
+  string status = 7;
+  map<string, Money> metrics = 8;
+  google.protobuf.Timestamp generated_at = 9;
+  uint64 generated_by = 10;
+  string format = 11;
+  string data_url = 12;
+}
+
+message GenerateDailyReportRequest {
+  uint64 business_id = 1;
+  google.protobuf.Timestamp date = 2;
+}
+
+message GenerateDailyReportResponse {
+  FinancialReport report = 1;
+}
+
+message GenerateMonthlyReportRequest {
+  uint64 business_id = 1;
+  int32 year = 2;
+  int32 month = 3;
+}
+
+message GenerateMonthlyReportResponse {
+  FinancialReport report = 1;
+}
+
+message GenerateCustomReportRequest {
+  uint64 business_id = 1;
+  google.protobuf.Timestamp start_date = 2;
+  google.protobuf.Timestamp end_date = 3;
+}
+
+message GenerateCustomReportResponse {
+  FinancialReport report = 1;
+}
+
+message GetReportByIDRequest {
+  string report_id = 1;
+}
+
+message GetReportByIDResponse {
+  FinancialReport report = 1;
+}
+
+message ExportReportRequest {
+  string report_id = 1;
+  string format = 2;
+}
+
+message ExportReportResponse {
+  bytes data = 1;
+}

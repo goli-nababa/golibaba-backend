@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package bank.v1;
+
+option go_package = "bank_service/gen/go/bank/v1;bankv1";
+
+import "google/protobuf/timestamp.proto";
+import "bank/v1/common.proto";
+import "bank/v1/transaction.proto";
+
+service AnalyticsService {
+  rpc TrackTransaction(TrackTransactionRequest) returns (TrackTransactionResponse);
+  rpc GenerateBusinessReport(GenerateBusinessReportRequest) returns (GenerateBusinessReportResponse);
+  rpc GenerateBusinessStats(GenerateBusinessStatsRequest) returns (GenerateBusinessStatsResponse);
+  rpc GetCommissionHistory(GetCommissionHistoryRequest) returns (GetCommissionHistoryResponse);
+  rpc GetPayoutHistory(GetPayoutHistoryRequest) returns (GetPayoutHistoryResponse);
+}
+
+message AnalyticsReport {
+  string id = 1;
+  uint64 business_id = 2;
+  google.protobuf.Timestamp start_date = 3;
+  google.protobuf.Timestamp end_date = 4;
+  map<string, double> metrics = 5;
+  map<string, DataPointList> trends = 6;
+  map<string, Comparison> comparisons = 7;
+  google.protobuf.Timestamp generated_at = 8;
+}
+
+message DataPoint {
+  google.protobuf.Timestamp timestamp = 1;
+  double value = 2;
+  string label = 3;
+}
+
+message DataPointList {
+  repeated DataPoint points = 1;
+}
+
+message Comparison {
+  double current_value = 1;
+  double previous_value = 2;
+  double change_percent = 3;
+}
+
+message CommissionEntry {
+  string transaction_id = 1;
+  Money amount = 2;
+  double rate = 3;
+  string status = 4;
+  google.protobuf.Timestamp processed_at = 5;
+}
+
+message PayoutEntry {
+  string id = 1;
+  Money amount = 2;
+  string status = 3;
+  google.protobuf.Timestamp requested_at = 4;
+  google.protobuf.Timestamp processed_at = 5;
+  string reference_id = 6;
+  string failure_reason = 7;
+}
+
+message TrackTransactionRequest {
+  Transaction transaction = 1;
+}
+
+message TrackTransactionResponse {
+  bool success = 1;
+}
+
+message GenerateBusinessReportRequest {
+  uint64 business_id = 1;
+  google.protobuf.Timestamp start_date = 2;
+  google.protobuf.Timestamp end_date = 3;
+}
+
+message GenerateBusinessReportResponse {
+  AnalyticsReport report = 1;
+}
+
+message GenerateBusinessStatsRequest {
+  uint64 business_id = 1;
+  google.protobuf.Timestamp start_date = 2;
+  google.protobuf.Timestamp end_date = 3;
+}
+
+message GenerateBusinessStatsResponse {
+  BusinessStats stats = 1;
+}
+
+message GetCommissionHistoryRequest {
+  uint64 business_id = 1;
+  google.protobuf.Timestamp start_date = 2;
+  google.protobuf.Timestamp end_date = 3;
+}
+
+message GetCommissionHistoryResponse {
+  repeated CommissionEntry entries = 1;
+}
+
+message GetPayoutHistoryRequest {
+  string wallet_id = 1;
+  google.protobuf.Timestamp start_date = 2;
+  google.protobuf.Timestamp end_date = 3;
+}
+
+message GetPayoutHistoryResponse {
+  repeated PayoutEntry entries = 1;
+}

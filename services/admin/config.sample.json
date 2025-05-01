@@ -1,0 +1,36 @@
+{
+  "db": {
+    "host": "golibaba-db",
+    "port": 5432,
+    "user": "porestgres",
+    "pass": "postgres",
+    "name": "postgres",
+    "schema": "public"
+  },
+  "services": {
+    "gateway": "http://golibaba-gateway-app:8080"
+  },
+  "service_info": {
+    "name": "admin_service",
+    "version": "v1",
+    "url_prefix": "/api/v1",
+    "base_url": "/v1/admin_service",
+    "heart_beat": {
+      "url": "/health",
+      "ttl": 5
+    }
+  },
+  "server": {
+    "port": 8080,
+    "host": "golibaba-admin-service-app",
+    "otp_ttl_minutes": 5,
+    "password_secret": "your_password_secret_key",
+    "secret": "your_jwt_secret_key",
+    "auth_expiration_minutes": 60,
+    "auth_refresh_minutes": 1440
+  },
+  "redis": {
+    "host": "golibaba-redis",
+    "port": 6379
+  }
+}

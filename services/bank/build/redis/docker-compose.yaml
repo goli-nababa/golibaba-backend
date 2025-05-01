@@ -1,0 +1,26 @@
+services:
+  bank-redis:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-golibaba}_bank_redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - bank_redis_data:/data
+    networks:
+      - bank-internal
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  bank_redis_data:
+    name: ${COMPOSE_PROJECT_NAME:-golibaba}_bank_redis_data
+
+networks:
+  bank-internal:
+    name: ${COMPOSE_PROJECT_NAME:-golibaba}_bank_internal

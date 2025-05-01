@@ -1,0 +1,22 @@
+services:
+  bank-app:
+    build:
+      context: ../..
+      dockerfile: build/project/Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-golibaba}_bank_service
+    restart: on-failure
+    environment:
+      - TZ=Asia/Tehran
+    volumes:
+      - bank_logs:/app/logs
+    ports:
+      - "${APP_PORT:-8081}:8081"
+    networks:
+      - golibaba-network
+
+volumes:
+  bank_logs:
+    name: ${COMPOSE_PROJECT_NAME:-golibaba}_bank_logs
+networks:
+  golibaba-network:
+    external: true

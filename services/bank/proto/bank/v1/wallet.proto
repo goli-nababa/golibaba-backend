@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package bank.v1;
+
+option go_package = "bank_service/gen/go/bank/v1;bankv1";
+
+import "google/protobuf/timestamp.proto";
+import "bank/v1/common.proto";
+
+service WalletService {
+  rpc CreateWallet(CreateWalletRequest) returns (CreateWalletResponse);
+  rpc GetWallet(GetWalletRequest) returns (GetWalletResponse);
+  rpc GetWalletsByUser(GetWalletsByUserRequest) returns (GetWalletsByUserResponse);
+  rpc Credit(CreditRequest) returns (CreditResponse);
+  rpc Debit(DebitRequest) returns (DebitResponse);
+  rpc Transfer(TransferRequest) returns (TransferResponse);
+  rpc UpdateWalletStatus(UpdateWalletStatusRequest) returns (UpdateWalletStatusResponse);
+}
+
+message Wallet {
+  string id = 1;
+  uint64 user_id = 2;
+  Money balance = 3;
+  string status = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+  int32 version = 7;
+}
+
+message CreateWalletRequest {
+  uint64 owner_id = 1;
+  string wallet_type = 2;
+  string currency = 3;
+}
+
+message CreateWalletResponse {
+  Wallet wallet = 1;
+}
+
+message GetWalletRequest {
+  string wallet_id = 1;
+}
+
+message GetWalletResponse {
+  Wallet wallet = 1;
+}
+
+message GetWalletsByUserRequest {
+  uint64 user_id = 1;
+}
+
+message GetWalletsByUserResponse {
+  repeated Wallet wallets = 1;
+}
+
+message CreditRequest {
+  string wallet_id = 1;
+  Money amount = 2;
+}
+
+message CreditResponse {
+  Wallet updated_wallet = 1;
+}
+
+message DebitRequest {
+  string wallet_id = 1;
+  Money amount = 2;
+}
+
+message DebitResponse {
+  Wallet updated_wallet = 1;
+}
+
+message TransferRequest {
+  string from_wallet_id = 1;
+  string to_wallet_id = 2;
+  Money amount = 3;
+}
+
+message TransferResponse {
+  Wallet from_wallet = 1;
+  Wallet to_wallet = 2;
+}
+
+message UpdateWalletStatusRequest {
+  string wallet_id = 1;
+  string status = 2;
+}
+
+message UpdateWalletStatusResponse {
+  Wallet wallet = 1;
+}

@@ -1,0 +1,90 @@
+### Go ###
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+./logs
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+### Project Specific ###
+# Config files in build directory and subdirectories
+build/**/*.json
+!build/**/*.sample.json
+!build/**/*.example.json
+
+# Config files in root
+build/project/config/config.json
+!build/project/config/config.sample.json
+
+# Environment files
+*.env
+.env*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Binary folders
+bin/
+dist/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+### Temporary files ###
+tmp/
+temp/
+.tmp/
+.temp/
+
+### System Files ###
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+### API Documentation ###
+docs/api/swagger.*
+docs/api/*.json
+docs/api/*.yaml
+
+### Database ###
+*.db
+*.sqlite
+*.sqlite3
+
+### Redis ###
+*.rdb
+*.aof
+
+### Certificates ###
+*.pem
+*.key
+*.crt
+*.cer
+*.der
+*.priv
+
+### Backup files ###
+*.bak
+*.backup
+./vendor
+vendor
+config.json
